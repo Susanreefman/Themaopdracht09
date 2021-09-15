@@ -7,20 +7,32 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
 ```
 
 # Logbook
 
+%cable 
 
 ## Week 1
 
+This is a dataset of bird sound recordings, a specific subset gathered from the Xeno Canto collection to form a balanced dataset across 88 species commonly heard in the United Kingdom.
+
 ```{r data}
-data <- read.csv('train.csv')
+data <- read.csv('train.csv', header = T)
+str(head(data))
 
+data %>% select(id, chromogram_0_0, species)
+
+summary(data)
+
+a <- data %>% select(!c(genus, species))
+
+
+boxplot(log2(a[1:20]))
 ```
 
 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+
