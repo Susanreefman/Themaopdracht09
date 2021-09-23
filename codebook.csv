@@ -1,0 +1,30 @@
+Variable, Type, Label, number of possible values
+AGE,Numeric,Age at admission,12
+ALCDRUG,Numeric,Substance use type,4
+CASEID,Numeric,Case identification number,N/A
+DSMCRIT,Numeric,DSM diagnosis (SuDS 4 or SuDS 19),19
+EDUC,Numeric,Education,5
+EMPLOY,Numeric,Employment status at admission,4
+EMPLOY_D,Numeric,Employment status at discharge,4
+FREQ1,Numeric,Frequency of use at admission (primary),3
+FREQ2,Numeric,Frequency of use at admission (secondary),3
+FREQ3,Numeric,Frequency of use at admission (tertiary),3
+FREQ1_D,Numeric,Frequency of use at discharge (primary),3
+FREQ2_D,Numeric,Frequency of use at discharge (secondary),3
+FREQ3_D,Numeric,Frequency of use at discharge (tertiary),3
+FRSTUSE1,Numeric,Age at first use (primary),7
+FRSTUSE2,Numeric,Age at first use (secondary),7
+FRSTUSE3,Numeric,Age at first use (tertiary),7
+LOS,Numeric,Length of stay in treatment (days),37
+NOPRIOR,Numeric,Number of previous substance use treatment episodes,2
+PSYPROB,Numeric,Co-occurring mental and substance use disorders,2
+REASON,Numeric,Reason for discharge,7
+ROUTE1,Numeric,Route of administration (primary),5
+ROUTE2,Numeric,Route of administration (secondary),5
+ROUTE3,Numeric,Route of administration (tertiary),5
+SUB1,Numeric,Substance use at admission (primary),19
+SUB2,Numeric,Substance use at admission (secondary),19
+SUB3,Numeric,Substance use at admission (tertiary),19
+SUB1_D,Numeric,Substance use at discharge (primary),19
+SUB2_D,Numeric,Substance use at discharge (secondary),19
+SUB3_D,Numeric,Substance use at discharge (tertiary),19
