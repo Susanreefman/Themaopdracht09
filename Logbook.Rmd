@@ -2,27 +2,66 @@
 title: "Logbook"
 author: "Susan Reefman"
 date: "9/14/2021"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
+library(ggplot2)
+library(tidyr)
 ```
 
 # Logbook
 
 %cable 
 
-## Week 1
+## Week 1 Introduction
+### Research topic and dataset 
 
-Can the length of treatment be predicted based on the substance use, frequency of use and the age at first use by using machine learning?
+The research topic of this project is the treatment episodes of patients. 
+The dataset used in this project is from the Treatment Episode Data Set (TEDS), 
+an American data system of annual discharges from substance use treatment facilities.
+The used dataset is a TEDS-D dataset, which means it includes discharges from substance
+use treatment facilities. TEDS-D contains records on admissions of people of 12-years and older,
+and includes information of admission, substance use characteristics and discharges.
+The dataset includes information from patients who where at the facility in 2019.
+For this project some personal and substance use characteristics information are collected from the dataset. 
+In the table the variables are listed with their meaning. The type of all variables are numeric and the number of possible values 
+is different for each variable.
+
+<!-- Age, substance use type, case identification number, education, employment status at admission, frequency of use, age at first use, length of stay in treatment, number of previous substance treatment episodes, co-occuring mental and substance use disorders, reason for discharge, route of administration, substance use at admission and discharge-->
 
 ```{r data}
+load("~/Documents/Themaopdracht09/tedsd_puf_2019.RData")
+
+p <- "CASEID|AGE|EDUC|^EMPLOY|ALCDRUG|^SUB|^FREQ[1|2|3]|^ROUTE|^FRSTUSE|LOS|NOPRIOR|PSYPROB|DSMCRIT|REASON"
+
+data <- df[, grep(pattern=p, colnames(df))]
+
+is.na(data) <- data == "-9"
+
+codebook <- read.csv("~/Documents/Themaopdracht09/codebook.csv", header = TRUE, 
+                     sep = ",", na.strings = "N/A")
+
+knitr::kable(codebook)
+```
+
+
+
+
+
+```{r}
+ggplot(data = data, mapping = aes(x = AGE, y = LOS)) + 
+  geom_point()
 
 ```
 
 
+
+Can the length of treatment be predicted based on the substance use, frequency of use and the age at first use by using machine learning?
 
 
