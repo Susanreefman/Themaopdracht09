@@ -54,9 +54,20 @@ knitr::kable(codebook)
 
 
 
-```{r}
-ggplot(data = data, mapping = aes(x = AGE, y = LOS)) + 
-  geom_point()
+```{r fig.cap=Histogram age of patients in groeps}
+x <- 1:12
+ggplot(data = data, aes(x = AGE)) + 
+  geom_histogram(bins = 12,
+                 xlim = c(0,12),
+                 ylim = c(0,1000),
+                 fill = I("blue"),
+                 col = I("blue"),
+                 alpha = 0.5) +
+  xlab("Age by groups") +
+  ylab(NULL) +
+  scale_x_continuous(labels=as.character(x),breaks=x) +
+  scale_y_continuous(labels=NULL)
+
 
 ```
 
