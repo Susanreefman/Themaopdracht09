@@ -15,12 +15,7 @@ library(ggplot2)
 library(tidyr)
 ```
 
-# Logbook
-
-%cable 
-
-## Week 1 Introduction
-### Research topic and dataset 
+# Research topic and dataset 
 
 The research topic of this project is the treatment episodes of patients. 
 The dataset used in this project is from the Treatment Episode Data Set (TEDS), 
@@ -50,11 +45,32 @@ codebook <- read.csv("~/Documents/Themaopdracht09/codebook.csv", header = TRUE,
 knitr::kable(codebook)
 ```
 
+With this dataset a model can be made. In this project is researched whether the length of treatment
+can be predicted. 
+The model is made by the following question: "Can the length of treatment be predicted based on the substance use, frequency of use and the age at first use by using machine learning?"
+
+# Exploratory data analysis
+
+To get an idea of what the data includes a couple histograms are made. 
+In figure 1 is the age of patients shown. The age of patients is divided in
+groups: 
+group 1 = 12–14 years,
+group 2 = 15–17 years,
+group 3 = 18–20 years,
+group 4 = 21–24 years,
+group 5 = 25–29 years,
+group 6 = 30–34 years,
+group 7 = 35–39 years,
+group 8 = 40–44 years,
+group 9 = 45–49 years,
+group 10 = 50–54 years, 
+group 11 = 55–64 years, 
+group 12 = 65 years and older.
+
+The most patients fall under the groups 6, 7, 8 and are between 30 and 44 years old.
 
 
-
-
-```{r fig.cap=Histogram age of patients in groeps}
+```{r message=FALSE, warning=FALSE, fig.cap="Histogram age of patients in groups"}
 x <- 1:12
 ggplot(data = data, aes(x = AGE)) + 
   geom_histogram(bins = 12,
@@ -71,8 +87,59 @@ ggplot(data = data, aes(x = AGE)) +
 
 ```
 
+The age of first use of the patients is shown figure 2. 
+The age of patients is divided in multiple groups: group 1 = 11 years and under, group 2 = 12–14 years, 
+group 3 = 15–17 years, group 4 = 18–20 years, group 5 = 21-24 years, 
+group 6 = 25-29 years, group 7 = 30 years and over.
+The frequency for the secondary and tertiary substance is lower, most patients have one an addiction for one substance. 
 
 
-Can the length of treatment be predicted based on the substance use, frequency of use and the age at first use by using machine learning?
+```{r message=FALSE, warning=FALSE, fig.cap="Histogram age of first use of patients in groups; blue = substance 1 - green = substance 2 - red = substance 3" }
+ggplot(data = data, aes(x = FRSTUSE1)) + 
+  geom_histogram(bins = 7,
+                 col = I("blue"),
+                 alpha = 0.2) +
+  geom_histogram(data = data, aes(x = FRSTUSE2),
+                 bins = 7,
+                 col = I("green"),
+                 alpha = 0.2) +
+  geom_histogram(data = data, aes(x = FRSTUSE3),
+                 bins = 7,
+                 col = I("red"),
+                 alpha = 0.2) +
+  xlab("Age by groups") +
+  ylab(NULL) +
+  scale_x_continuous(labels=as.character(x),breaks=x) +
+  scale_y_continuous(labels=NULL)
+```
+
+
+
+```{r message=FALSE, warning=FALSE, fig.cap="Histogram age of first use of patients in groups; blue = substance 1 - green = substance 2 - red = substance 3" }
+ggplot(data = data, aes(x = FREQ1)) + 
+  geom_histogram(bins = 3,
+                 col = I("blue"),
+                 alpha = 0.2) +
+  geom_histogram(data = data, aes(x = FREQ2),
+                 bins = 3,
+                 col = I("green"),
+                 alpha = 0.2) +
+  geom_histogram(data = data, aes(x = FREQ3),
+                 bins = 3,
+                 col = I("red"),
+                 alpha = 0.2) +
+  xlab("Frequency of use in groups") +
+  ylab(NULL) +
+  scale_x_continuous(labels=c("No use in the past month","Some use","Daily use",4,5,6,7,8,9,10,11,12), breaks=x) +
+  scale_y_continuous(labels=NULL)
+
+```
+
+Figure 3 shows the frequency of use of patients in groups. There are 3 groups; 
+No use in the past month, some use and daily use. As can be seen most patients are
+in the group of daily use. 
+
+
+
 
 
