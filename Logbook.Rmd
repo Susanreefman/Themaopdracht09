@@ -111,7 +111,7 @@ The age of patients is divided in multiple groups:
 The frequency for the secondary and tertiary substance is lower, most patients have one an addiction for one substance. 
 
 
-```{r message=FALSE, warning=FALSE, fig.cap="Right: Histogram age of first use of patients in groups; Left:Histogram age of first use of patients in groups" }
+```{r message=FALSE, warning=FALSE, fig.cap="Top: Histogram of age of first use of patients in groups; Bottom: Histogram of frequency of use by patients in groups" }
 # histogram age of first use
 x <- 1:7
 label <- c("< 12", "12–14", "15–17", "18–20", "21-24", "25-29","> 29")
@@ -127,8 +127,9 @@ p1 <- ggplot(data = data, aes(x = FRSTUSE1)) +
                  bins = 7,
                  col = I("red"),
                  alpha = 0.2) +
-  xlab("Age by groups") +
+  xlab("Age (years)") +
   ylab("Patients") +
+  ggtitle("Frequency of patients in groups by age of first use")+
   scale_x_continuous(labels=label,breaks=x)
 
 # histogram frequency of use
@@ -145,8 +146,9 @@ p2 <- ggplot(data = data, aes(x = FREQ1)) +
                  bins = 3,
                  col = I("red"),
                  alpha = 0.2) +
-  xlab("Frequency of use in groups") +
+  xlab("Frequency of use") +
   ylab("Patients") +
+  ggtitle("Frequency of patients in groups by frequency of use") +
   scale_x_continuous(labels=c("No use in the past month","Some use","Daily use"), breaks=x) 
 
 grid.arrange(p1, p2)
@@ -160,11 +162,11 @@ label <- c("None", "Alcohol", "Cocaine/crack", "Marijuana/hashish", "Heroin", "N
 ggplot(data = data, aes(x = SUB1)) + 
   geom_histogram(bins = 19,
                  col = I("blue"),
-                 alpha = 0.5) +
+                 alpha = 1) +
   geom_histogram(data = data, aes(x = SUB2),
                  bins = 19,
                  col = I("green"),
-                 alpha = 0.2) +
+                 alpha = 0.5) +
   geom_histogram(data = data, aes(x = SUB3),
                  bins = 19,
                  col = I("red"),
@@ -172,7 +174,10 @@ ggplot(data = data, aes(x = SUB1)) +
   xlab("Frequency of use in groups") +
   ylab("Patients") +
   scale_x_continuous(labels=label, breaks=x) +
-  theme(theme(axis.text.x = element_text(angle = 90,hjust = 1)))
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+
 
 ```
 
@@ -182,14 +187,43 @@ in the group of daily use.
 
 
 
+
+
+
+
+
+```{r fig.cap="Boxplot "}
+data$type_drug <- replace(data$ALCDRUG, data$ALCDRUG == 1, "Alcohol only") 
+data$type_drug <- replace(data$type_drug, data$type_drug == 2, "Other drugs only") 
+data$type_drug <- replace(data$type_drug, data$type_drug == 3, "Alcohol and other drugs")
+data$type_drug <- replace(data$type_drug, data$type_drug == 0, "None")
+
+
+y <- 1:37
+
+ggplot(data = data, aes(factor(x=type_drug, level = c("None", "Alcohol only", "Other drugs only", "Alcohol and other drugs")), y=LOS)) +
+  geom_boxplot() +
+  scale_y_continuous(labels = c(1:30,"31-45","46-60", "61-90", "91-120", "121-180", "181-365", ">365"),
+                     breaks=y) +
+  ylab("Length of stay (days)") +
+  xlab("Type of substance use") +
+  ggtitle("Length of stay in treatment by substance use type")
+  
+
+```
+
+
 # Cleaning Dataset
 
 
 
 ```{r}
-age <- data$AGE
+data$disorder <- factor(ifelse(
+  data$PSYPROB == 1, "Yes", "No"))
 
-rec(age, rec = "1=12-14;2=15-17")
+ggplot(data = data, aes(x=disorder, y=LOS))+
+  geom_boxplot()
+
 
 ```
 
