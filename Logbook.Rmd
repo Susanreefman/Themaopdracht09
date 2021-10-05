@@ -1,7 +1,7 @@
 ---
 title: "Logbook"
 author: "Susan Reefman"
-date: "9/14/2021"
+date: "05/10/2021"
 output:
   pdf_document: default
   html_document: default
@@ -15,8 +15,7 @@ library(ggplot2)
 library(tidyr)
 install.packages("gridExtra") 
 library(gridExtra)
-install.packages("thePackage")
-library(thePackage)
+
 ```
 
 # Research topic and dataset 
@@ -45,9 +44,6 @@ p <- "CASEID|AGE|EDUC|^EMPLOY|ALCDRUG|^SUB|^FREQ[1|2|3]|^ROUTE|^FRSTUSE|LOS|NOPR
 # get relevant data from data set
 data <- df[, grep(pattern=p, colnames(df))]
 
-# replacing missing data with NA's 
-is.na(data) <- data == "-9"
-
 codebook <- read.csv("~/Documents/Themaopdracht09/codebook.csv", header = TRUE, 
                      sep = ",", na.strings = "N/A")
 
@@ -68,29 +64,37 @@ discharge.
 
 # Exploratory data analysis
 
-#missing data
+## Missing data
 
-To get an idea of what the data includes a couple histograms are made. 
+In the dataset missing data is coded for '-9'. In this research those values
+are replaced with NA.
+
+```{r}
+# replacing missing data with NA's 
+is.na(data) <- data == "-9"
+
+```
+
+## Variation and distribution
+
+
+To get an idea of what the data includes a couple histograms are made (see results).
+The histograms display the amount of patients, in age groups, when they first used 
+and their frequency of use. 
+Also the amount of patients and their substance use are displayed in a histogram. 
+A boxplot is used to show the length of stay in treatment versus the type of substance use. 
+
+
+## Results
+
 In figure 1 is the age of patients shown. The age of patients is divided in
-groups: 
-group 1 = 12–14 years,
-group 2 = 15–17 years,
-group 3 = 18–20 years,
-group 4 = 21–24 years,
-group 5 = 25–29 years,
-group 6 = 30–34 years,
-group 7 = 35–39 years,
-group 8 = 40–44 years,
-group 9 = 45–49 years,
-group 10 = 50–54 years, 
-group 11 = 55–64 years, 
-group 12 = 65 years and older.
-
-The most patients fall under the groups 6, 7, 8 and are between 30 and 44 years old.
+groups of around 4 years. Most patients are between 25 and 39 years old. 
+The age of patients seems like a normal distrubution.
 
 
-```{r message=FALSE, warning=FALSE, fig.cap="Histogram age of patients in groups"}
+```{r message=FALSE, warning=FALSE, fig.cap="Histogram age of patients in groups", fig.dim = c(6, 4)}
 x <- 1:12
+label <- c("12-14","15–17", "18–20", "21-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-64", ">65")
 ggplot(data = data, aes(x = AGE)) + 
   geom_histogram(bins = 12,
                  xlim = c(0,12),
@@ -98,20 +102,26 @@ ggplot(data = data, aes(x = AGE)) +
                  fill = I("blue"),
                  col = I("blue"),
                  alpha = 0.5) +
-  xlab("Age by groups") +
-  ylab(NULL) +
-  scale_x_continuous(labels=as.character(x),breaks=x) +
-  scale_y_continuous(labels=NULL)
+  ggtitle("Distribution of age of patients") +
+  xlab("Age (years)") +
+  ylab("Frequency") +
+  scale_x_continuous(labels=label,breaks=x)
 
 
 ```
 
-The age of first use of the patients is shown figure 2. 
-The age of patients is divided in multiple groups: 
-The frequency for the secondary and tertiary substance is lower, most patients have one an addiction for one substance. 
+The age of first use of the patients and the frequency of use is shown figure 2. 
+The age of patients is divided in multiple groups, in which the first is 
+12 years of younger and the last group is 29 years of older. 
+The frequency for the secondary and tertiary substance is lower, 
+most patients have one an addiction for one substance. 
+For the frequency of substance use the primary substance is mostly use daily.
+The frequency of use of secondary and tertiary substance are very similar,
+the patients are almost evenly spread over the groups of frequency of use. 
+The age of first use of patients seems normally distributed.
 
 
-```{r message=FALSE, warning=FALSE, fig.cap="Top: Histogram of age of first use of patients in groups; Bottom: Histogram of frequency of use by patients in groups" }
+```{r message=FALSE, warning=FALSE, fig.cap="Top: Histogram of age of first use of patients in groups; Bottom: Histogram of frequency of use by patients in groups", fig.dim = c(6, 4) }
 # histogram age of first use
 x <- 1:7
 label <- c("< 12", "12–14", "15–17", "18–20", "21-24", "25-29","> 29")
@@ -155,8 +165,13 @@ grid.arrange(p1, p2)
 ```
 
 
+Figure 3 displays the number of patients and their substance of use. 
+Not surprisingly is the red (tertiary substance) very high for the None of substance of use. 
+Not all patients have multiple substances they are addicited to. However, 
+there are a few patients that filled in that the have none as primary substance of use (blue). 
+Alcohol, Heroin and Methamphetamine are the most substances that are used by patients. 
 
-```{r message=FALSE, warning=FALSE, fig.cap="; blue = substance 1 - green = substance 2 - red = substance 3" }
+```{r message=FALSE, warning=FALSE, fig.cap="Histogram of substance use of patients", fig.dim = c(6, 4) }
 x <- 1:19
 label <- c("None", "Alcohol", "Cocaine/crack", "Marijuana/hashish", "Heroin", "Non-prescription methadone", "Other opiates and synthetics", "PCP", "Other hallucinogens", "Methamphetamine", "Other amphetamines", "Other stimulants", "Benzodiazepines", "Other non-benzodiazepine tranquilizers", "Barbiturates", "Other non-barbiturate sedatives or hypnotics", "Inhalants", "Over-the-counter medications", "Other")
 ggplot(data = data, aes(x = SUB1)) + 
@@ -171,28 +186,51 @@ ggplot(data = data, aes(x = SUB1)) +
                  bins = 19,
                  col = I("red"),
                  alpha = 0.2) +
-  xlab("Frequency of use in groups") +
+  xlab("Substance used") +
   ylab("Patients") +
   scale_x_continuous(labels=label, breaks=x) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-
-
-
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  ggtitle("Frequency of patients by substance use")
 
 ```
 
-Figure 3 shows the frequency of use of patients in groups. There are 3 groups; 
-No use in the past month, some use and daily use. As can be seen most patients are
-in the group of daily use. 
+Figure 4 shows the usual route of administration of patients. 
+Most patients use the oral route of administration of their substance use. 
+Most patients that have a secondary substance use, use the smoking route of administration
+of that substance. 
+
+```{r message=FALSE, warning=FALSE, fig.cap="Histogram of route of substance administration of patients", fig.dim = c(6, 4) }
+x <- 1:5
+label <- c("Oral", "Smoking", "Inhalation", "Injection", "Other")
+ggplot(data = data, aes(x = ROUTE1)) + 
+  geom_histogram(bins = 5,
+                 col = I("blue"),
+                 alpha = 0.1) +
+  geom_histogram(data = data, aes(x = ROUTE2),
+                 bins = 5,
+                 col = I("green"),
+                 alpha = 0.5) +
+  geom_histogram(data = data, aes(x = ROUTE3),
+                 bins = 5,
+                 col = I("red"),
+                 alpha = 1) +
+  xlab("Route of substance") +
+  ylab("Patients") +
+  scale_x_continuous(labels=label, breaks=x) +
+  ggtitle("Route of substance use")
+
+```
 
 
+The boxplot in figure 5 shows the distribution of patients length of stay in treatment in days
+versus the substance use type which they get treated for. The mean of length of stay 
+when they indicated "none" as substance use type is 9 days. For alcohol and other drugs
+the treatment is much longer. For alcohol as substance use type the average length of stay is 22 days.
+For the patients with a substance use type of only drugs or alcohol and other drugs the average length
+of stay is 28 days. The length of stay has a large difference in all substance use type groups. 
 
 
-
-
-
-
-```{r fig.cap="Boxplot "}
+```{r fig.cap="Boxplot length of stay in treatment in days by the substance use type of patients",  fig.dim = c(6, 4)}
 data$type_drug <- replace(data$ALCDRUG, data$ALCDRUG == 1, "Alcohol only") 
 data$type_drug <- replace(data$type_drug, data$type_drug == 2, "Other drugs only") 
 data$type_drug <- replace(data$type_drug, data$type_drug == 3, "Alcohol and other drugs")
@@ -213,19 +251,18 @@ ggplot(data = data, aes(factor(x=type_drug, level = c("None", "Alcohol only", "O
 ```
 
 
-# Cleaning Dataset
 
 
+# Conclusion & Discussion
 
-```{r}
-data$disorder <- factor(ifelse(
-  data$PSYPROB == 1, "Yes", "No"))
-
-ggplot(data = data, aes(x=disorder, y=LOS))+
-  geom_boxplot()
-
-
-```
+Overall, as can be seen in the figures (see Results), the data is widely spread.
+The age of patients and the age of first use of patients seem normally distributed. 
+The attributes of variables can be discussed. In some cases the attributes are vague
+and can be wide interpreted. This is in the case of frequency of use, there 
+are three groups in which the data is divided: No use in the past month, Some use 
+and Daily use. As the first group is very clear, the second group is to vague. 
+What is meant by some use? Also the third group, daily use, can be up for discussion;
+how much is the substance used daily.
 
 
 
