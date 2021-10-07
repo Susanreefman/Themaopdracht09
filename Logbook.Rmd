@@ -265,5 +265,10 @@ What is meant by some use? Also the third group, daily use, can be up for discus
 how much is the substance used daily.
 
 
+```{r}
+write.csv(data, file = "data_thema09.csv")
+```
+
+
 
 
