@@ -16,6 +16,8 @@ library(tidyr)
 install.packages("gridExtra") 
 library(gridExtra)
 library(plyr); library(dplyr)
+install.packages("naniar")
+library(naniar)
 
 ```
 
@@ -72,7 +74,13 @@ are replaced with NA.
 
 ```{r}
 # replacing missing data with NA's 
-is.na(data) <- data == "-9"
+is.na(data) <- 
+  
+data == "-9"
+
+data %>% replace_with_na(replace = list(x = -9))
+
+data[data == -9] <- NA
 
 ```
 
@@ -210,28 +218,28 @@ ggplot(data, aes(fill=condition, y=value, x=specie)) +
     geom_bar(position="dodge", stat="identity")
     
 ```{r}
-specie <- c(rep("sorgho" , 3) , rep("poacee" , 3) , rep("banana" , 3) , rep("triticum" , 3) )
-condition <- rep(c("normal" , "stress" , "Nitrogen") , 4)
-value <- abs(rnorm(12 , 0 , 15))
-lol <- data.frame(specie,condition,value)
+#specie <- c(rep("sorgho" , 3) , rep("poacee" , 3) , rep("banana" , 3) , rep("triticum" , 3) )
+#condition <- rep(c("normal" , "stress" , "Nitrogen") , 4)
+#value <- abs(rnorm(12 , 0 , 15))
+#lol <- data.frame(specie,condition,value)
  
 
-route <- data.frame(data$ROUTE1, data$ROUTE2, data$ROUTE3)
+#route <- data.frame(data$ROUTE1, data$ROUTE2, data$ROUTE3)
 
 #fill -> routes
 #x -> labels
 #y -> number
 
-ggplot(route, aes(x=label)) +
-  geom_bar(stat="count", position = "dodge")
+#ggplot(route, aes(x=label)) +
+#  geom_bar(stat="count", position = "dodge")
 
-label <- c("Oral", "Smoking", "Inhalation", "Injection", "Other")
-ggplot(route) + 
-    geom_bar(aes(x=data.ROUTE1, fill = data.ROUTE2))
+#label <- c("Oral", "Smoking", "Inhalation", "Injection", "Other")
+#ggplot(route) + 
+#    geom_bar(aes(x=data.ROUTE1, fill = data.ROUTE2))
 
 
-ggplot(loanData, aes(factor(loanData$saving_status), fill = loanData$class)) +
-  geom_bar(stat="count", position = "dodge") + scale_fill_brewer(palette = "Set1")
+#ggplot(loanData, aes(factor(loanData$saving_status), fill = loanData$class)) +
+#  geom_bar(stat="count", position = "dodge") + scale_fill_brewer(palette = "Set1")
 
 
 ```
@@ -354,21 +362,24 @@ how much is the substance used daily.
 based on the substance use, frequency of use and the age at first use by using machine learning?"
 
 ```{r}
-pat <- "AGE|ALCDRUG|SUB1|FREQ1|ROUTE1|FRSTUSE1|LOS"
+pat <- "AGE|ALCDRUG|SUB1$|FREQ1$|ROUTE1|FRSTUSE1|LOS"
 
 # get relevant data from data set
-dataset <- df[, grep(pattern=pat, colnames(df))]
+dataset <- data[, grep(pattern=pat, colnames(data))]
+
 ```
 
 
 ```{r}
-write.csv(dataset, file = "data_thema09.csv")
+write.csv(dataset, file = "dataset_thema09.csv")
 ```
 
 
 # WEKA
 
 First filter StringToNominal (attribute-Range = first-last) applied.
+
+Second filter NumericToNominal (attribute-Range = first-last)
 
 
 
