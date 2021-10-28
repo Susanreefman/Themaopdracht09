@@ -15,6 +15,7 @@ library(ggplot2)
 library(tidyr)
 install.packages("gridExtra") 
 library(gridExtra)
+library(plyr); library(dplyr)
 
 ```
 
@@ -199,6 +200,44 @@ Most patients use the oral route of administration of their substance use.
 Most patients that have a secondary substance use, use the smoking route of administration
 of that substance. 
 
+stacked boxplot
+
+
+# create a dataset
+
+# Grouped
+ggplot(data, aes(fill=condition, y=value, x=specie)) + 
+    geom_bar(position="dodge", stat="identity")
+    
+```{r}
+specie <- c(rep("sorgho" , 3) , rep("poacee" , 3) , rep("banana" , 3) , rep("triticum" , 3) )
+condition <- rep(c("normal" , "stress" , "Nitrogen") , 4)
+value <- abs(rnorm(12 , 0 , 15))
+lol <- data.frame(specie,condition,value)
+ 
+
+route <- data.frame(data$ROUTE1, data$ROUTE2, data$ROUTE3)
+
+#fill -> routes
+#x -> labels
+#y -> number
+
+ggplot(route, aes(x=label)) +
+  geom_bar(stat="count", position = "dodge")
+
+label <- c("Oral", "Smoking", "Inhalation", "Injection", "Other")
+ggplot(route) + 
+    geom_bar(aes(x=data.ROUTE1, fill = data.ROUTE2))
+
+
+ggplot(loanData, aes(factor(loanData$saving_status), fill = loanData$class)) +
+  geom_bar(stat="count", position = "dodge") + scale_fill_brewer(palette = "Set1")
+
+
+```
+  
+    
+
 ```{r message=FALSE, warning=FALSE, fig.cap="Histogram of route of substance administration of patients", fig.dim = c(6, 4) }
 x <- 1:5
 label <- c("Oral", "Smoking", "Inhalation", "Injection", "Other")
@@ -251,7 +290,52 @@ ggplot(data = data, aes(factor(x=type_drug, level = c("None", "Alcohol only", "O
 ```
 
 
+PCA
+https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_pca.html
 
+
+
+```{r}
+install.packages("ggfortify")
+library(ggfortify)
+df <- iris
+iris
+
+d <- "LOS|SUB[1,2,3]$"
+df <- data[, grep(pattern=d, colnames(data))]
+
+pca_res <- prcomp(na.omit(data), scale. = TRUE)
+
+autoplot(pca_res, colour = "LOS")
+```
+
+```{r}
+library(cluster)
+
+pa <- "AGE|ALCDRUG|FRSTUSE1|LOS"
+
+# get relevant data from data set
+datapa <- data[, grep(pattern=pa, colnames(data))]
+
+
+autoplot(clara(datapa))
+
+na.omit(df)
+set.seed(1)
+autoplot(kmeans(df, 4), data = df)
+autoplot(kmeans(USArrests, 3), data = USArrests, label = TRUE, label.size = 3)
+
+autoplot(cluster::clara(na.omit(datapa)[-3], 2))
+
+```
+
+
+
+
+```{r}
+df[which(is.na(df$SUB1)), ]
+
+```
 
 # Conclusion & Discussion
 
@@ -265,9 +349,26 @@ What is meant by some use? Also the third group, daily use, can be up for discus
 how much is the substance used daily.
 
 
+# Cleaning dataset
+"Can the length of treatment be predicted 
+based on the substance use, frequency of use and the age at first use by using machine learning?"
+
 ```{r}
-write.csv(data, file = "data_thema09.csv")
+pat <- "AGE|ALCDRUG|SUB1|FREQ1|ROUTE1|FRSTUSE1|LOS"
+
+# get relevant data from data set
+dataset <- df[, grep(pattern=pat, colnames(df))]
 ```
+
+
+```{r}
+write.csv(dataset, file = "data_thema09.csv")
+```
+
+
+# WEKA
+
+First filter StringToNominal (attribute-Range = first-last) applied.
 
 
 
