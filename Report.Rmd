@@ -1,0 +1,76 @@
+---
+title: "Report"
+author: "H.S. Reefman"
+date: "2-11-2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+```{r get dataset}
+load("~/Documents/Themaopdracht09/tedsd_puf_2019.RData")
+
+p <- "CASEID|AGE|EDUC|^EMPLOY|ALCDRUG|^SUB|^FREQ[1|2|3]|^ROUTE|^FRSTUSE|LOS|NOPRIOR|PSYPROB|DSMCRIT|REASON"
+
+# get relevant data from data set
+data <- df[, grep(pattern=p, colnames(df))]
+
+```
+
+The research topic of this project is the treatment episodes of patients. 
+The dataset used in this project is from the Treatment Episode Data Set (TEDS), 
+an American data system of annual discharges from substance use treatment facilities.
+The used dataset is a TEDS-D dataset, which means it includes discharges from substance
+use treatment facilities. TEDS-D contains records on admissions of people of 12-years and older,
+and includes information of admission, substance use characteristics and discharges.
+The dataset includes information from patients who where at the facility in 2019.
+For this project some personal and substance use characteristics information are collected from the dataset. 
+With this dataset a model can be made. In this project is researched whether the length of treatment can be predicted. 
+The model is made by the following question: "Can the length of treatment be predicted 
+based on the substance use, frequency of use and the age at first use by using machine learning?"
+To answer this question information is collected from the dataset. The personal information
+about the patients that is used is case id, age, education and employment status.
+Other information is about substance characteristics, for example; substance use type, 
+substance use at admission and discharge and route of administration.
+The information about treatment episodes are also covered. This includes length
+of stay in treatment, number of previous substance treatment episodes and reason of 
+discharge. 
+
+
+# Materials and Methods
+
+https://github.com/Susanreefman/Themaopdracht09
+Rstudio 
+Weka Version 3.8.5
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+# Results
+
+## EDA
+
+
+## Cleaning dataset
+
+Because the dataset is very large and most of the data is not included in this project.
+Only the characteristics of the use of patients is necessary, which include: Type of use (alcohol, drugs or both), the substance of use, the frequency of use, the route of inhalation and the age of first use. The length of stay is also necessary in this project. 
+Because the dataset is this large, the patients which have information that is not available is removed from the dataset. This includes around 200.000 patients, the dataset still includes more than 1.5 million patients. 
+
+## WEKA
+
+The cleaned dataset is uploaded into the Weka Explorer.
+
+
+## Machine learning
+
+
+
+# Conclusion and Discussion
+
+## Project proposal for minor
