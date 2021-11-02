@@ -37,8 +37,6 @@ is different for each variable.
 data source: https://www.datafiles.samhsa.gov/dataset/teds-d-2017-ds0001-teds-d-2017-ds0001
 
 
-<!-- Age, substance use type, case identification number, education, employment status at admission, frequency of use, age at first use, length of stay in treatment, number of previous substance treatment episodes, co-occuring mental and substance use disorders, reason for discharge, route of administration, substance use at admission and discharge-->
-
 ```{r data}
 load("~/Documents/Themaopdracht09/tedsd_puf_2019.RData")
 
@@ -53,8 +51,7 @@ codebook <- read.csv("~/Documents/Themaopdracht09/codebook.csv", header = TRUE,
 knitr::kable(codebook)
 ```
 
-With this dataset a model can be made. In this project is researched whether the length of treatment
-can be predicted. 
+With this dataset a model can be made. In this project is researched whether the length of treatment can be predicted. 
 The model is made by the following question: "Can the length of treatment be predicted 
 based on the substance use, frequency of use and the age at first use by using machine learning?"
 To answer this question information is collected from the dataset. The personal information
@@ -74,12 +71,6 @@ are replaced with NA.
 
 ```{r}
 # replacing missing data with NA's 
-is.na(data) <- 
-  
-data == "-9"
-
-data %>% replace_with_na(replace = list(x = -9))
-
 data[data == -9] <- NA
 
 ```
@@ -358,28 +349,35 @@ how much is the substance used daily.
 
 
 # Cleaning dataset
-"Can the length of treatment be predicted 
-based on the substance use, frequency of use and the age at first use by using machine learning?"
+Because the dataset is very large and most of the data is not included in this project.
+Only the characteristics of the use of patients is necessary, which include: Type of use (alcohol, drugs or both), the substance of use, the frequency of use, the route of inhalation and the age of first use. The length of stay is also necessary in this project. 
+Because the dataset is this large, the patients which have information that is not available is removed from the dataset. This includes around 200.000 patients, the dataset still includes more than 1.5 million patients. 
 
 ```{r}
 pat <- "AGE|ALCDRUG|SUB1$|FREQ1$|ROUTE1|FRSTUSE1|LOS"
 
-# get relevant data from data set
+# get relevant data from dataset
 dataset <- data[, grep(pattern=pat, colnames(data))]
+
+# remove rows with NA's
+dataset <- na.omit(dataset)
 
 ```
 
-
+After that the cleaned dataset is written to a csv file. 
 ```{r}
+# Write dataset to csv file
 write.csv(dataset, file = "dataset_thema09.csv")
 ```
 
 
 # WEKA
 
-First filter StringToNominal (attribute-Range = first-last) applied.
+The csv file is uploaded in the Weka Explorer. 
 
-Second filter NumericToNominal (attribute-Range = first-last)
+
+<!-- First filter StringToNominal (attribute-Range = first-last) applied. -->
+
 
 
 
