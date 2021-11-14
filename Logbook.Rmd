@@ -13,11 +13,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggplot2)
 library(tidyr)
-install.packages("gridExtra") 
 library(gridExtra)
 library(plyr); library(dplyr)
-install.packages("naniar")
-library(naniar)
+library(grid)
+
 
 ```
 
@@ -38,15 +37,17 @@ data source: https://www.datafiles.samhsa.gov/dataset/teds-d-2017-ds0001-teds-d-
 
 
 ```{r data}
-load("~/Documents/Themaopdracht09/tedsd_puf_2019.RData")
+load("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/tedsd_puf_2019.RData")
 
 p <- "CASEID|AGE|EDUC|^EMPLOY|ALCDRUG|^SUB|^FREQ[1|2|3]|^ROUTE|^FRSTUSE|LOS|NOPRIOR|PSYPROB|DSMCRIT|REASON"
 
 # get relevant data from data set
 data <- df[, grep(pattern=p, colnames(df))]
 
-codebook <- read.csv("~/Documents/Themaopdracht09/codebook.csv", header = TRUE, 
-                     sep = ",", na.strings = "N/A")
+codebook <- read.csv("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/codebook.csv", 
+                     header = TRUE, 
+                     sep = ",", 
+                     na.strings = "N/A")
 
 knitr::kable(codebook)
 ```
@@ -110,173 +111,230 @@ ggplot(data = data, aes(x = AGE)) +
 
 ```
 
-The age of first use of the patients and the frequency of use is shown figure 2. 
-The age of patients is divided in multiple groups, in which the first is 
-12 years of younger and the last group is 29 years of older. 
-The frequency for the secondary and tertiary substance is lower, 
-most patients have one an addiction for one substance. 
-For the frequency of substance use the primary substance is mostly use daily.
-The frequency of use of secondary and tertiary substance are very similar,
-the patients are almost evenly spread over the groups of frequency of use. 
-The age of first use of patients seems normally distributed.
 
+Figure 2 .... 
 
-```{r message=FALSE, warning=FALSE, fig.cap="Top: Histogram of age of first use of patients in groups; Bottom: Histogram of frequency of use by patients in groups", fig.dim = c(6, 4) }
-# histogram age of first use
-x <- 1:7
-label <- c("< 12", "12–14", "15–17", "18–20", "21-24", "25-29","> 29")
-p1 <- ggplot(data = data, aes(x = FRSTUSE1)) + 
-  geom_histogram(bins = 7,
-                 col = I("blue"),
-                 alpha = 0.2) +
-  geom_histogram(data = data, aes(x = FRSTUSE2),
-                 bins = 7,
-                 col = I("green"),
-                 alpha = 0.2) +
-  geom_histogram(data = data, aes(x = FRSTUSE3),
-                 bins = 7,
-                 col = I("red"),
-                 alpha = 0.2) +
-  xlab("Age (years)") +
-  ylab("Patients") +
-  ggtitle("Frequency of patients in groups by age of first use")+
-  scale_x_continuous(labels=label,breaks=x)
+```{r frstuse, message=FALSE, warning=FALSE}
+data$frstuse <- replace(data$FRSTUSE1, data$FRSTUSE1 == 1, "<11") 
+data$frstuse <- replace(data$frstuse, data$frstuse == 2, "12-14") 
+data$frstuse <- replace(data$frstuse, data$frstuse == 3, "15-17")
+data$frstuse <- replace(data$frstuse, data$frstuse == 4, "18-20")
+data$frstuse <- replace(data$frstuse, data$frstuse == 5, "21-24")
+data$frstuse <- replace(data$frstuse, data$frstuse == 6, "25-29")
+data$frstuse <- replace(data$frstuse, data$frstuse == 7, ">30")
 
-# histogram frequency of use
-x <- 1:3
-p2 <- ggplot(data = data, aes(x = FREQ1)) + 
-  geom_histogram(bins = 3,
-                 col = I("blue"),
-                 alpha = 0.2) +
-  geom_histogram(data = data, aes(x = FREQ2),
-                 bins = 3,
-                 col = I("green"),
-                 alpha = 0.2) +
-  geom_histogram(data = data, aes(x = FREQ3),
-                 bins = 3,
-                 col = I("red"),
-                 alpha = 0.2) +
-  xlab("Frequency of use") +
-  ylab("Patients") +
-  ggtitle("Frequency of patients in groups by frequency of use") +
-  scale_x_continuous(labels=c("No use in the past month","Some use","Daily use"), breaks=x) 
+df_frstuse <- count(data$frstuse)
+df_frstuse$frstuse <- c("frstuse1")
+colnames(df_frstuse) <- c("age", "freq", "frstuse")
 
-grid.arrange(p1, p2)
-```
+data$frstuse2 <- replace(data$FRSTUSE2, data$FRSTUSE2 == 1, "<11") 
+data$frstuse2 <- replace(data$frstuse2, data$frstuse2 == 2, "12-14") 
+data$frstuse2 <- replace(data$frstuse2, data$frstuse2 == 3, "15-17")
+data$frstuse2 <- replace(data$frstuse2, data$frstuse2 == 4, "18-20")
+data$frstuse2 <- replace(data$frstuse2, data$frstuse2 == 5, "21-24")
+data$frstuse2 <- replace(data$frstuse2, data$frstuse2 == 6, "25-29")
+data$frstuse2 <- replace(data$frstuse2, data$frstuse2 == 7, ">30")
 
+df2_frstuse <- count(data$frstuse)
+df2_frstuse$frstuse <- c("frstuse2")
+colnames(df2_frstuse) <- c("age", "freq", "frstuse")
 
-Figure 3 displays the number of patients and their substance of use. 
-Not surprisingly is the red (tertiary substance) very high for the None of substance of use. 
-Not all patients have multiple substances they are addicited to. However, 
-there are a few patients that filled in that the have none as primary substance of use (blue). 
-Alcohol, Heroin and Methamphetamine are the most substances that are used by patients. 
+data$frstuse3 <- replace(data$FRSTUSE3, data$FRSTUSE3 == 1, "<11") 
+data$frstuse3 <- replace(data$frstuse3, data$frstuse3 == 2, "12-14") 
+data$frstuse3 <- replace(data$frstuse3, data$frstuse3 == 3, "15-17")
+data$frstuse3 <- replace(data$frstuse3, data$frstuse3 == 4, "18-20")
+data$frstuse3 <- replace(data$frstuse3, data$frstuse3 == 5, "21-24")
+data$frstuse3 <- replace(data$frstuse3, data$frstuse3 == 6, "25-29")
+data$frstuse3 <- replace(data$frstuse3, data$frstuse3 == 7, ">30")
 
-```{r message=FALSE, warning=FALSE, fig.cap="Histogram of substance use of patients", fig.dim = c(6, 4) }
-x <- 1:19
-label <- c("None", "Alcohol", "Cocaine/crack", "Marijuana/hashish", "Heroin", "Non-prescription methadone", "Other opiates and synthetics", "PCP", "Other hallucinogens", "Methamphetamine", "Other amphetamines", "Other stimulants", "Benzodiazepines", "Other non-benzodiazepine tranquilizers", "Barbiturates", "Other non-barbiturate sedatives or hypnotics", "Inhalants", "Over-the-counter medications", "Other")
-ggplot(data = data, aes(x = SUB1)) + 
-  geom_histogram(bins = 19,
-                 col = I("blue"),
-                 alpha = 1) +
-  geom_histogram(data = data, aes(x = SUB2),
-                 bins = 19,
-                 col = I("green"),
-                 alpha = 0.5) +
-  geom_histogram(data = data, aes(x = SUB3),
-                 bins = 19,
-                 col = I("red"),
-                 alpha = 0.2) +
-  xlab("Substance used") +
-  ylab("Patients") +
-  scale_x_continuous(labels=label, breaks=x) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
-  ggtitle("Frequency of patients by substance use")
+df3_frstuse <- count(data$frstuse)
+df3_frstuse$frstuse <- c("frstuse3")
+colnames(df3_frstuse) <- c("age", "freq", "frstuse")
+
+total <- rbind(df_frstuse, df2_frstuse, df3_frstuse)
+
+p1 <- ggplot(total, aes(fill=frstuse, y=freq, x=age)) + 
+            geom_bar(position="stack", stat="identity") +
+            xlab("Age (years)") +
+            ylab("Patients") +
+            theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
 
 ```
 
-Figure 4 shows the usual route of administration of patients. 
-Most patients use the oral route of administration of their substance use. 
-Most patients that have a secondary substance use, use the smoking route of administration
-of that substance. 
+```{r freq, message=FALSE, warning=FALSE}
+data$freq <- replace(data$FREQ1, data$FREQ1 == 1, "No use in the past month") 
+data$freq <- replace(data$freq, data$freq == 2, "Some use") 
+data$freq<- replace(data$freq, data$freq == 3, "Daily use")
 
-stacked boxplot
+df_freq <- count(data$freq)
+df_freq$freq_use <- c("freq1")
+colnames(df_freq) <- c("frequency", "freq", "freq_use")
 
+data$freq2 <- replace(data$FREQ2, data$FREQ2 == 1, "No use in the past month") 
+data$freq2 <- replace(data$freq2, data$freq2 == 2, "Some use") 
+data$freq2 <- replace(data$freq2, data$freq2 == 3, "Daily use")
 
-# create a dataset
+df2_freq <- count(data$freq2)
+df2_freq$freq_use <- c("freq2")
+colnames(df2_freq) <- c("frequency", "freq", "freq_use")
 
-# Grouped
-ggplot(data, aes(fill=condition, y=value, x=specie)) + 
-    geom_bar(position="dodge", stat="identity")
-    
-```{r}
-#specie <- c(rep("sorgho" , 3) , rep("poacee" , 3) , rep("banana" , 3) , rep("triticum" , 3) )
-#condition <- rep(c("normal" , "stress" , "Nitrogen") , 4)
-#value <- abs(rnorm(12 , 0 , 15))
-#lol <- data.frame(specie,condition,value)
- 
+data$freq3 <- replace(data$FREQ3, data$FREQ3 == 1, "No use in the past month") 
+data$freq3 <- replace(data$freq3, data$freq3 == 2, "Some use") 
+data$freq3 <- replace(data$freq3, data$freq3 == 3, "Daily use")
 
-#route <- data.frame(data$ROUTE1, data$ROUTE2, data$ROUTE3)
+df3_freq <- count(data$freq3)
+df3_freq$freq_use <- c("freq3")
+colnames(df3_freq) <- c("frequency", "freq", "freq_use")
 
-#fill -> routes
-#x -> labels
-#y -> number
+total1 <- rbind(df_freq, df2_freq, df3_freq)
 
-#ggplot(route, aes(x=label)) +
-#  geom_bar(stat="count", position = "dodge")
-
-#label <- c("Oral", "Smoking", "Inhalation", "Injection", "Other")
-#ggplot(route) + 
-#    geom_bar(aes(x=data.ROUTE1, fill = data.ROUTE2))
-
-
-#ggplot(loanData, aes(factor(loanData$saving_status), fill = loanData$class)) +
-#  geom_bar(stat="count", position = "dodge") + scale_fill_brewer(palette = "Set1")
-
+p2 <- ggplot(total1, aes(fill=freq_use, y=freq, x=frequency)) + 
+            geom_bar(position="stack", stat="identity") +
+            xlab("Frequency of use") +
+            ylab("Patients") +
+            theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+            
 
 ```
+
+```{r sub}
+data$sub <- replace(data$SUB1, data$SUB1 == 1, "None") 
+data$sub <- replace(data$sub, data$sub == 2, "Alcohol") 
+data$sub <- replace(data$sub, data$sub == 3, "Cocaine/crack")
+data$sub <- replace(data$sub, data$sub == 4, "Marijuana/hashish")
+data$sub <- replace(data$sub, data$sub == 5, "Heroin")
+data$sub <- replace(data$sub, data$sub == 6, "Non-prescription methadone")
+data$sub <- replace(data$sub, data$sub == 7, "Other opiates and synthetics")
+data$sub <- replace(data$sub, data$sub == 8, "PCP") 
+data$sub <- replace(data$sub, data$sub == 9, "Other hallucinogens")
+data$sub <- replace(data$sub, data$sub == 10, "Methamphetamine")
+data$sub <- replace(data$sub, data$sub == 11, "Other amphetamines")
+data$sub <- replace(data$sub, data$sub == 12, "Other stimulants")
+data$sub <- replace(data$sub, data$sub == 13, "Benzodiazepines")
+data$sub <- replace(data$sub, data$sub == 14, "Other non-benzodiazepine tranquilizers") 
+data$sub <- replace(data$sub, data$sub == 15, "Barbiturates")
+data$sub <- replace(data$sub, data$sub == 16, "Other non-barbiturate sedatives or hypnotics")
+data$sub <- replace(data$sub, data$sub == 17, "Inhalants")
+data$sub <- replace(data$sub, data$sub == 18, "Over-the-counter medications")
+data$sub <- replace(data$sub, data$sub == 19, "Other")
+
+df_sub <- count(data$sub)
+df_sub$sub <- c("sub1")
+colnames(df_sub) <- c("substance", "freq", "sub")
+
+data$sub2 <- replace(data$SUB2, data$SUB2 == 1, "None") 
+data$sub2 <- replace(data$sub2, data$sub2 == 2, "Alcohol") 
+data$sub2 <- replace(data$sub2, data$sub2 == 3, "Cocaine/crack")
+data$sub2 <- replace(data$sub2, data$sub2 == 4, "Marijuana/hashish")
+data$sub2 <- replace(data$sub2, data$sub2 == 5, "Heroin")
+data$sub2 <- replace(data$sub2, data$sub2 == 6, "Non-prescription methadone")
+data$sub2 <- replace(data$sub2, data$sub2 == 7, "Other opiates and synthetics")
+data$sub2 <- replace(data$sub2, data$sub2 == 8, "PCP") 
+data$sub2 <- replace(data$sub2, data$sub2 == 9, "Other hallucinogens")
+data$sub2 <- replace(data$sub2, data$sub2 == 10, "Methamphetamine")
+data$sub2 <- replace(data$sub2, data$sub2 == 11, "Other amphetamines")
+data$sub2 <- replace(data$sub2, data$sub2 == 12, "Other stimulants")
+data$sub2 <- replace(data$sub2, data$sub2 == 13, "Benzodiazepines")
+data$sub2 <- replace(data$sub2, data$sub2 == 14, "Other non-benzodiazepine tranquilizers") 
+data$sub2 <- replace(data$sub2, data$sub2 == 15, "Barbiturates")
+data$sub2 <- replace(data$sub2, data$sub2 == 16, "Other non-barbiturate sedatives or hypnotics")
+data$sub2 <- replace(data$sub2, data$sub2 == 17, "Inhalants")
+data$sub2 <- replace(data$sub2, data$sub2 == 18, "Over-the-counter medications")
+data$sub2 <- replace(data$sub2, data$sub2 == 19, "Other")
+
+df2_sub <- count(data$sub2)
+df2_sub$sub <- c("sub2")
+colnames(df2_sub) <- c("substance", "freq", "sub")
+
+data$sub3 <- replace(data$SUB3, data$SUB3 == 1, "None") 
+data$sub3 <- replace(data$sub3, data$sub3 == 2, "Alcohol") 
+data$sub3 <- replace(data$sub3, data$sub3 == 3, "Cocaine/crack")
+data$sub3 <- replace(data$sub3, data$sub3 == 4, "Marijuana/hashish")
+data$sub3 <- replace(data$sub3, data$sub3 == 5, "Heroin")
+data$sub3 <- replace(data$sub3, data$sub3 == 6, "Non-prescription methadone")
+data$sub3 <- replace(data$sub3, data$sub3 == 7, "Other opiates and synthetics")
+data$sub3 <- replace(data$sub3, data$sub3 == 8, "PCP") 
+data$sub3 <- replace(data$sub3, data$sub3 == 9, "Other hallucinogens")
+data$sub3 <- replace(data$sub3, data$sub3 == 10, "Methamphetamine")
+data$sub3 <- replace(data$sub3, data$sub3 == 11, "Other amphetamines")
+data$sub3 <- replace(data$sub3, data$sub3 == 12, "Other stimulants")
+data$sub3 <- replace(data$sub3, data$sub3 == 13, "Benzodiazepines")
+data$sub3 <- replace(data$sub3, data$sub3 == 14, "Other non-benzodiazepine tranquilizers") 
+data$sub3 <- replace(data$sub3, data$sub3 == 15, "Barbiturates")
+data$sub3 <- replace(data$sub3, data$sub3 == 16, "Other non-barbiturate sedatives or hypnotics")
+data$sub3 <- replace(data$sub3, data$sub3 == 17, "Inhalants")
+data$sub3 <- replace(data$sub3, data$sub3 == 18, "Over-the-counter medications")
+data$sub3 <- replace(data$sub3, data$sub3 == 19, "Other")
+
+df3_sub <- count(data$sub3)
+df3_sub$sub <- c("sub3")
+colnames(df3_sub) <- c("substance", "freq", "sub")
+
+total2 <- rbind(df_sub, df2_sub, df3_sub)
+
+p3 <- ggplot(total2, aes(fill=sub, y=freq, x=substance)) + 
+            geom_bar(position="stack", stat="identity")+
+            xlab("Substance used") +
+            ylab("Patients") +
+            theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+
+```
+
+```{r route, message=FALSE, warning=FALSE}
+data$route <- replace(data$ROUTE1, data$ROUTE1 == 1, "Oral") 
+data$route <- replace(data$route, data$route == 2, "Smoking") 
+data$route <- replace(data$route, data$route == 3, "Inhalation")
+data$route <- replace(data$route, data$route == 4, "Injection") 
+data$route <- replace(data$route, data$route == 5, "Other")
+
+df_route <- count(data$route)
+df_route$freq_route <- c("route1")
+colnames(df_route) <- c("route", "freq", "freq_route")
+
+data$route2 <- replace(data$ROUTE2, data$ROUTE2 == 1, "Oral") 
+data$route2 <- replace(data$route2, data$route2 == 2, "Smoking") 
+data$route2 <- replace(data$route2, data$route2 == 3, "Inhalation")
+data$route2 <- replace(data$route2, data$route2 == 4, "Injection") 
+data$route2 <- replace(data$route2, data$route2 == 5, "Other")
+
+df2_route <- count(data$route2)
+df2_route$freq_route2 <- c("route2")
+colnames(df2_route) <- c("route", "freq", "freq_route")
+
+data$route3 <- replace(data$ROUTE3, data$ROUTE3 == 1, "Oral") 
+data$route3 <- replace(data$route3, data$route3 == 2, "Smoking") 
+data$route3 <- replace(data$route3, data$route3 == 3, "Inhalation")
+data$route3 <- replace(data$route3, data$route3 == 4, "Injection") 
+data$route3 <- replace(data$route3, data$route3 == 5, "Other")
+
+df3_route <- count(data$route3)
+df3_route$freq_route3 <- c("route3")
+colnames(df3_route) <- c("route", "freq", "freq_route")
+
+total3 <- rbind(df_route, df2_route, df3_route)
+
+p4 <- ggplot(total3, aes(fill=freq_route, y=freq, x=route)) + 
+            geom_bar(position="stack", stat="identity") +
+            xlab("Route of administration") +
+            ylab("Patients") +
+            theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
   
-    
-
-```{r message=FALSE, warning=FALSE, fig.cap="Histogram of route of substance administration of patients", fig.dim = c(6, 4) }
-x <- 1:5
-label <- c("Oral", "Smoking", "Inhalation", "Injection", "Other")
-ggplot(data = data, aes(x = ROUTE1)) + 
-  geom_histogram(bins = 5,
-                 col = I("blue"),
-                 alpha = 0.1) +
-  geom_histogram(data = data, aes(x = ROUTE2),
-                 bins = 5,
-                 col = I("green"),
-                 alpha = 0.5) +
-  geom_histogram(data = data, aes(x = ROUTE3),
-                 bins = 5,
-                 col = I("red"),
-                 alpha = 1) +
-  xlab("Route of substance") +
-  ylab("Patients") +
-  scale_x_continuous(labels=label, breaks=x) +
-  ggtitle("Route of substance use")
-
 ```
 
 
-The boxplot in figure 5 shows the distribution of patients length of stay in treatment in days
-versus the substance use type which they get treated for. The mean of length of stay 
-when they indicated "none" as substance use type is 9 days. For alcohol and other drugs
-the treatment is much longer. For alcohol as substance use type the average length of stay is 22 days.
-For the patients with a substance use type of only drugs or alcohol and other drugs the average length
-of stay is 28 days. The length of stay has a large difference in all substance use type groups. 
+```{r }
+grid.arrange(p1, p2, p3, p4, top=textGrob("Histograms of 4 Variables"))
 
+```
+
+Figure 3:
 
 ```{r fig.cap="Boxplot length of stay in treatment in days by the substance use type of patients",  fig.dim = c(6, 4)}
 data$type_drug <- replace(data$ALCDRUG, data$ALCDRUG == 1, "Alcohol only") 
 data$type_drug <- replace(data$type_drug, data$type_drug == 2, "Other drugs only") 
 data$type_drug <- replace(data$type_drug, data$type_drug == 3, "Alcohol and other drugs")
 data$type_drug <- replace(data$type_drug, data$type_drug == 0, "None")
-
-
 y <- 1:37
-
 ggplot(data = data, aes(factor(x=type_drug, level = c("None", "Alcohol only", "Other drugs only", "Alcohol and other drugs")), y=LOS)) +
   geom_boxplot() +
   scale_y_continuous(labels = c(1:30,"31-45","46-60", "61-90", "91-120", "121-180", "181-365", ">365"),
@@ -285,76 +343,28 @@ ggplot(data = data, aes(factor(x=type_drug, level = c("None", "Alcohol only", "O
   xlab("Type of substance use") +
   ggtitle("Length of stay in treatment by substance use type")
   
-
 ```
 
-
-PCA
-https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_pca.html
-
+Figure 4:
 
 
 ```{r}
-install.packages("ggfortify")
-library(ggfortify)
-df <- iris
-iris
 
-d <- "LOS|SUB[1,2,3]$"
-df <- data[, grep(pattern=d, colnames(data))]
-
-pca_res <- prcomp(na.omit(data), scale. = TRUE)
-
-autoplot(pca_res, colour = "LOS")
 ```
 
 ```{r}
-library(cluster)
-
-pa <- "AGE|ALCDRUG|FRSTUSE1|LOS"
-
-# get relevant data from data set
-datapa <- data[, grep(pattern=pa, colnames(data))]
-
-
-autoplot(clara(datapa))
-
-na.omit(df)
-set.seed(1)
-autoplot(kmeans(df, 4), data = df)
-autoplot(kmeans(USArrests, 3), data = USArrests, label = TRUE, label.size = 3)
-
-autoplot(cluster::clara(na.omit(datapa)[-3], 2))
 
 ```
-
-
-
-
-```{r}
-df[which(is.na(df$SUB1)), ]
-
-```
-
-# Conclusion & Discussion
-
-Overall, as can be seen in the figures (see Results), the data is widely spread.
-The age of patients and the age of first use of patients seem normally distributed. 
-The attributes of variables can be discussed. In some cases the attributes are vague
-and can be wide interpreted. This is in the case of frequency of use, there 
-are three groups in which the data is divided: No use in the past month, Some use 
-and Daily use. As the first group is very clear, the second group is to vague. 
-What is meant by some use? Also the third group, daily use, can be up for discussion;
-how much is the substance used daily.
 
 
 # Cleaning dataset
+
 Because the dataset is very large and most of the data is not included in this project.
-Only the characteristics of the use of patients is necessary, which include: Type of use (alcohol, drugs or both), the substance of use, the frequency of use, the route of inhalation and the age of first use. The length of stay is also necessary in this project. 
+Only the characteristics of the use of patients is necessary, which include: Type of use (alcohol, drugs or both), the substance of use, the frequency of use and the age of first use. The length of stay is also necessary in this project. 
 Because the dataset is this large, the patients which have information that is not available is removed from the dataset. This includes around 200.000 patients, the dataset still includes more than 1.5 million patients. 
 
 ```{r}
-pat <- "AGE|ALCDRUG|SUB1$|FREQ1$|ROUTE1|FRSTUSE1|LOS"
+pat <- "ALCDRUG|SUB1$|FREQ1$|FRSTUSE1|LOS"
 
 # get relevant data from dataset
 dataset <- data[, grep(pattern=pat, colnames(data))]
