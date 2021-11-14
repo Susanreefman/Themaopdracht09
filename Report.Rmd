@@ -54,6 +54,30 @@ plot(pressure)
 # Results
 
 ## EDA
+The age of first use of the patients and the frequency of use is shown figure 2. 
+The age of patients is divided in multiple groups, in which the first is 
+12 years of younger and the last group is 29 years of older. 
+The frequency for the secondary and tertiary substance is lower, 
+most patients have one an addiction for one substance. 
+For the frequency of substance use the primary substance is mostly use daily.
+The frequency of use of secondary and tertiary substance are very similar,
+the patients are almost evenly spread over the groups of frequency of use. 
+The age of first use of patients seems normally distributed.
+Figure 3 displays the number of patients and their substance of use. 
+Not surprisingly is the red (tertiary substance) very high for the None of substance of use. 
+Not all patients have multiple substances they are addicited to. However, 
+there are a few patients that filled in that the have none as primary substance of use (blue). 
+Alcohol, Heroin and Methamphetamine are the most substances that are used by patients. 
+Figure 4 shows the usual route of administration of patients. 
+Most patients use the oral route of administration of their substance use. 
+Most patients that have a secondary substance use, use the smoking route of administration
+of that substance. 
+The boxplot in figure 5 shows the distribution of patients length of stay in treatment in days
+versus the substance use type which they get treated for. The mean of length of stay 
+when they indicated "none" as substance use type is 9 days. For alcohol and other drugs
+the treatment is much longer. For alcohol as substance use type the average length of stay is 22 days.
+For the patients with a substance use type of only drugs or alcohol and other drugs the average length
+of stay is 28 days. The length of stay has a large difference in all substance use type groups. 
 
 
 ## Cleaning dataset
@@ -72,5 +96,15 @@ The cleaned dataset is uploaded into the Weka Explorer.
 
 
 # Conclusion and Discussion
+
+Overall, as can be seen in the figures (see Results), the data is widely spread.
+The age of patients and the age of first use of patients seem normally distributed. 
+The attributes of variables can be discussed. In some cases the attributes are vague
+and can be wide interpreted. This is in the case of frequency of use, there 
+are three groups in which the data is divided: No use in the past month, Some use 
+and Daily use. As the first group is very clear, the second group is to vague. 
+What is meant by some use? Also the third group, daily use, can be up for discussion;
+how much is the substance used daily.
+
 
 ## Project proposal for minor
