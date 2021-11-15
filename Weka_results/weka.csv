@@ -1,0 +1,33 @@
+Classifier, Attribute, Percentage Correctly Classified Instances, Percentage Incorrect Classified Instances
+ZeroR, los, 13.6%, 86.4%
+ZeroR, sub, 33.7%, 67.3%
+ZeroR, freq, 45.5%, 54.5%
+ZeroR, frstuse, 24.4%, 75.6%
+ZeroR, type_drug, 53.9%, 46.1% 
+OneR, los, 16.9%, 83.1%
+OneR, sub, 54.1%, 45.9%
+OneR, freq, 53.7%, 46.3%
+OneR, frstuse, 32.2%, 67.8%
+OneR, type_drug, 71.4%, 28.6%
+J48, los, 44.7%, 55.3%
+J48, sub, 62.5%, 37.5%
+J48, freq, 53.9%, 46.1%
+J48, frstuse, 32.8%, 67.2%
+J48, type_drug, 72.6%, 27.4%
+Naïve Bayes, los, 14.3%, 85.7%
+Naïve Bayes, sub, 58.6%, 41.4%
+Naïve Bayes, freq, 51.8%, 48.2%
+Naïve Bayes, frstuse, 26.9%, 73.1%
+Naïve Bayes, type_drug, 70.7%, 29.3%
+SimpleLogistics, los, 14.6%, 85.4%
+SimpleLogistics, sub, 58.9%, 41.1%
+SimpleLogistics, freq, 52.3%, 47.7%
+SimpleLogistics, frstuse, 27.6%, 72.4%
+SimpleLogistics, type_drug, 72.5%, 27.5%
+NearestNeighbor, los, 98%, 2%
+NearestNeighbor, sub, 99%, 1%
+NearestNeighbor, freq, 100%, 0% 
+NearestNeighbor, frstuse, 100%, 0%
+NearestNeighbor, type_drug, 100%, 0%
+
+
