@@ -3,8 +3,8 @@ title: "Logbook"
 author: "Susan Reefman"
 date: "05/10/2021"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -16,7 +16,7 @@ library(tidyr)
 library(gridExtra)
 library(plyr); library(dplyr)
 library(grid)
-
+library(patchwork)
 
 ```
 
@@ -93,7 +93,7 @@ groups of around 4 years. Most patients are between 25 and 39 years old.
 The age of patients seems like a normal distrubution.
 
 
-```{r message=FALSE, warning=FALSE, fig.cap="Histogram age of patients in groups", fig.dim = c(6, 4)}
+```{r message=FALSE, warning=FALSE, fig.cap="Figure 1: Histogram age of patients in groups", fig.dim = c(6, 4)}
 x <- 1:12
 label <- c("12-14","15–17", "18–20", "21-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-64", ">65")
 ggplot(data = data, aes(x = AGE)) + 
@@ -157,7 +157,7 @@ p1 <- ggplot(total, aes(fill=frstuse, y=freq, x=age)) +
             geom_bar(position="stack", stat="identity") +
             xlab("Age (years)") +
             ylab("Patients") +
-            theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+            theme(axis.text.x = element_text(angle = 90))
 
 ```
 
@@ -192,7 +192,7 @@ p2 <- ggplot(total1, aes(fill=freq_use, y=freq, x=frequency)) +
             geom_bar(position="stack", stat="identity") +
             xlab("Frequency of use") +
             ylab("Patients") +
-            theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+            theme(axis.text.x = element_text(angle = 90))
             
 
 ```
@@ -276,7 +276,7 @@ p3 <- ggplot(total2, aes(fill=sub, y=freq, x=substance)) +
             geom_bar(position="stack", stat="identity")+
             xlab("Substance used") +
             ylab("Patients") +
-            theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+            theme(axis.text.x = element_text(angle =90))
 
 ```
 
@@ -317,19 +317,19 @@ p4 <- ggplot(total3, aes(fill=freq_route, y=freq, x=route)) +
             geom_bar(position="stack", stat="identity") +
             xlab("Route of administration") +
             ylab("Patients") +
-            theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
+            theme(axis.text.x = element_text(angle = 90))
   
 ```
 
 
-```{r }
-grid.arrange(p1, p2, p3, p4, top=textGrob("Histograms of 4 Variables"))
+```{r , fig.cap="Figure 2: Stacked barplots of use characteristics of patients"}
+grid.arrange(p1, p2, p3, p4, top=textGrob("Histograms of 4 Variables"), ncol = 2)
 
 ```
 
 Figure 3:
 
-```{r fig.cap="Boxplot length of stay in treatment in days by the substance use type of patients",  fig.dim = c(6, 4)}
+```{r fig.cap="Figure 3: Boxplot length of stay in treatment in days by the substance use type of patients",  fig.dim = c(6, 4)}
 data$type_drug <- replace(data$ALCDRUG, data$ALCDRUG == 1, "Alcohol only") 
 data$type_drug <- replace(data$type_drug, data$type_drug == 2, "Other drugs only") 
 data$type_drug <- replace(data$type_drug, data$type_drug == 3, "Alcohol and other drugs")
@@ -345,17 +345,6 @@ ggplot(data = data, aes(factor(x=type_drug, level = c("None", "Alcohol only", "O
   
 ```
 
-Figure 4:
-
-
-```{r}
-
-```
-
-```{r}
-
-```
-
 
 # Cleaning dataset
 
@@ -364,13 +353,21 @@ Only the characteristics of the use of patients is necessary, which include: Typ
 Because the dataset is this large, the patients which have information that is not available is removed from the dataset. This includes around 200.000 patients, the dataset still includes more than 1.5 million patients. 
 
 ```{r}
-pat <- "ALCDRUG|SUB1$|FREQ1$|FRSTUSE1|LOS"
+pat <- "type_drug|sub$|freq$|frstuse$|los"
 
 # get relevant data from dataset
 dataset <- data[, grep(pattern=pat, colnames(data))]
 
 # remove rows with NA's
 dataset <- na.omit(dataset)
+
+
+dataset_weka <- sample_n(dataset, 1520681/3) 
+
+```
+
+```{r}
+write.csv(dataset_weka, file = "dataset_thema09.csv")
 
 ```
 
@@ -381,12 +378,80 @@ write.csv(dataset, file = "dataset_thema09.csv")
 ```
 
 
-# WEKA
+# Weka
+
+## Weka Explorer 
 
 The csv file is uploaded in the Weka Explorer. 
+The performance of standard machine learning algorithms was investigated. The classifier and
+attribute investigated were noted as well as the percentages (in)correctly classified instances. 
+
+```{r}
+weka <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/weka.csv", 
+                  sep = ',',
+                  header = T)
+
+knitr::kable(weka)
+```
+
+## Weka Experimenter
+
+Using the Weka Experimenter machine learning algorithms with 10-fold cross-validations were performed. 
+Results of each machine learning algorithm is separately saved in the Weka_results folder.
 
 
-<!-- First filter StringToNominal (attribute-Range = first-last) applied. -->
+```{r}
+pat <- "Key_Run|Key_Fold|Percent_correct|Percent_incorrect|True_positive_rate|False_positive_rate|True_negative_rate|False_negative_rate|^Elapsed"
+
+zeror <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/ZeroR.csv", 
+                        sep = ',',
+                        header = T)
+
+zeror <- zeror[, grep(pattern=pat, colnames(zeror))]
+
+knitr::kable(zeror)
+
+```
+
+```{r}
+oner <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/OneR.csv", 
+                        sep = ',',
+                        header = T)
+
+oner <- oner[, grep(pattern=pat, colnames(oner))]
+
+knitr::kable(oner)
+
+```
+
+
+```{r}
+naivebayes <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/naivebayes.csv", 
+                        sep = ',',
+                        header = T)
+
+naivebayes <- naivebayes[, grep(pattern=pat, colnames(naivebayes))]
+
+knitr::kable(naivebayes)
+
+```
+
+
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+
+
+
 
 
 
