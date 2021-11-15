@@ -33,46 +33,65 @@ With this dataset a model can be made. In this project is researched whether the
 The model is made by the following question: "Can the length of treatment be predicted 
 based on the substance use, frequency of use and the age at first use by using machine learning?"
 To answer this question information is collected from the dataset. The personal information
-about the patients that is used is case id, age, education and employment status.
+about the patients that is used is age.
 Other information is about substance characteristics, for example; substance use type, 
 substance use at admission and discharge and route of administration.
-The information about treatment episodes are also covered. This includes length
-of stay in treatment, number of previous substance treatment episodes and reason of 
-discharge. 
+The information about treatment episodes are also covered, this includes length
+of stay in treatment.
 
 
 # Materials and Methods
 
-https://github.com/Susanreefman/Themaopdracht09
-Rstudio 
-Weka Version 3.8.5
+Exploratory data analysis and data preparation is done with the R programming language using Rstudio.
+Plots were made making use of the 'ggplot2' packages. For the layout of the plots the packages 'grid' and 'gridExtra' were used. Other packages that were used include 'tidyverse', 'tidyr', '(d)plyr', with as function to format tables. 
+The model was built with Weka (version 3.8.5), a free data mining software written in Java.
+To built the model the clean dataset was inserted into the Weka Explorer and the performance of all standard machine learning algorithms were investigated. The machine learning algorithms investigated are:
+ 
+- ZeroR
+- OneR
+- Naïve Bayes
+- Simple Logistic
+- Nearest Neighbor (IBK)
+- J48
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+The classifications were carried out using 10-fold cross validations and the relevant quality metrics were recorded. These include: speed, accuracy, true positives (TP), false positives (TP), true negatives (TN) and the false negatives (FN). This is done in the Weka Experimenter.  
+
+Statistical tests were applied making use of the Weka Experimenter again. And some Meta learners were investigated. The findings were recorded and discussed. 
+
+In the end a ROC curve visualization and a learning curve were created. 
+
+Because the dataset included so many observations (around the 1.7 milion) a sample of the dataset
+was taken. To make sure this sample was a representative sample of the dataset, first the full dataset was investigated with the machine learning ZeroR. Also the sample was investigated with ZeroR (see Results). 
+
+The logbook and data of this research can be found in a repository on Github.com:
+https://github.com/Susanreefman/Themaopdracht09
+
+At last a command-line application (wrapper) was made in the Java programming language. 
+Code for the wrapper can be found in a repository on Github.com:
+https://
+
+
 
 # Results
 
 ## EDA
-The age of first use of the patients and the frequency of use is shown figure 2. 
-The age of patients is divided in multiple groups, in which the first is 
-12 years of younger and the last group is 29 years of older. 
-The frequency for the secondary and tertiary substance is lower, 
-most patients have one an addiction for one substance. 
-For the frequency of substance use the primary substance is mostly use daily.
-The frequency of use of secondary and tertiary substance are very similar,
-the patients are almost evenly spread over the groups of frequency of use. 
-The age of first use of patients seems normally distributed.
-Figure 3 displays the number of patients and their substance of use. 
-Not surprisingly is the red (tertiary substance) very high for the None of substance of use. 
-Not all patients have multiple substances they are addicited to. However, 
-there are a few patients that filled in that the have none as primary substance of use (blue). 
-Alcohol, Heroin and Methamphetamine are the most substances that are used by patients. 
-Figure 4 shows the usual route of administration of patients. 
-Most patients use the oral route of administration of their substance use. 
+In figure 2 multiple stacked barplots are shown. 
+Top-left depicts the age of first use of the patients. The age is divided in multiple groups, in which the first groups is 11 years of younger and the last group is 30 years of older. Every bar is divided into 3 classes. The pink class is the age of first using the primary substance of the patients. The blue class is the age of first using the secondary substance, and the green class the tertiary substance. The results seem normally distributed with a large amount of patients who started between 15 and 17 years old with using their primary, secondary or tertiary substance.
+
+Top-right shows the frequency of use of patients. Unlike the groups the frequency of use in which the data is divided, the 'NA' group is extremely large. Out of proportion is are the missing values of the frequency of the tertiary substance used. This could be because patients do not have a tertiary substance that is used. The frequency for the secondary and tertiary substance is lower, most patients just use one substance. The most patients use their primary substance daily. 
+
+Bottom-left shows the number of patients and their substance use. 
+Not surprisingly is the blue (tertiary substance) very high for the None of substance of use. Not all patients have multiple substances they are using. However, 
+there are a few patients that filled in that the have none as primary substance of use (pink). 
+Alcohol, Heroin and Methamphetamine are the most primary substances of patients. Cocaine and Marijuana or Hashish are mostly the secondary substance used. 
+
+Bottom-right depicts the usual route of administration of patients. 
+Most patients use the oral route of administration for their primary substance use.
 Most patients that have a secondary substance use, use the smoking route of administration
-of that substance. 
-The boxplot in figure 5 shows the distribution of patients length of stay in treatment in days
+of that substance. Again large amount of patients have missing information for the route of the secondary and tertiary substance, these are the patients that said they did not have a secondary or tertiary substance they use. 
+
+
+The boxplot in figure 3 shows the distribution of patients length of stay in treatment in days
 versus the substance use type which they get treated for. The mean of length of stay 
 when they indicated "none" as substance use type is 9 days. For alcohol and other drugs
 the treatment is much longer. For alcohol as substance use type the average length of stay is 22 days.
