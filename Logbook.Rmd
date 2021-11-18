@@ -30,19 +30,23 @@ use treatment facilities. TEDS-D contains records on admissions of people of 12-
 and includes information of admission, substance use characteristics and discharges.
 The dataset includes information from patients who where at the facility in 2019.
 For this project some personal and substance use characteristics information are collected from the dataset. 
-In the table the variables are listed with their meaning. The type of all variables are numeric and the number of possible values 
-is different for each variable.
+In the table the variables are listed with their meaning. The type of all variables are numeric and the number of possible values is different for each variable.
 
 data source: https://www.datafiles.samhsa.gov/dataset/teds-d-2017-ds0001-teds-d-2017-ds0001
 
+Meaning of the numeric values in the dataset can be seen in the codebook:
+https://www.datafiles.samhsa.gov/sites/default/files/field-uploads-protected/studies/TEDS-D-2019/TEDS-D-2019-datasets/TEDS-D-2019-DS0001/TEDS-D-2019-DS0001-info/TEDS-D-2019-DS0001-info-codebook_V1.pdf
 
-```{r data}
+
+
+```{r data, message=FALSE, warning=FALSE}
+# Load dataset
 load("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/tedsd_puf_2019.RData")
 
-p <- "CASEID|AGE|EDUC|^EMPLOY|ALCDRUG|^SUB|^FREQ[1|2|3]|^ROUTE|^FRSTUSE|LOS|NOPRIOR|PSYPROB|DSMCRIT|REASON"
-
 # get relevant data from data set
+p <- "CASEID|AGE|EDUC|^EMPLOY|ALCDRUG|^SUB|^FREQ[1|2|3]|^ROUTE|^FRSTUSE|LOS|NOPRIOR|PSYPROB|DSMCRIT|REASON"
 data <- df[, grep(pattern=p, colnames(df))]
+
 
 codebook <- read.csv("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/codebook.csv", 
                      header = TRUE, 
@@ -52,16 +56,7 @@ codebook <- read.csv("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/codebook.
 knitr::kable(codebook)
 ```
 
-With this dataset a model can be made. In this project is researched whether the length of treatment can be predicted. 
-The model is made by the following question: "Can the length of treatment be predicted 
-based on the substance use, frequency of use and the age at first use by using machine learning?"
-To answer this question information is collected from the dataset. The personal information
-about the patients that is used is case id, age, education and employment status.
-Other information is about substance characteristics, for example; substance use type, 
-substance use at admission and discharge and route of administration.
-The information about treatment episodes are also covered. This includes length
-of stay in treatment, number of previous substance treatment episodes and reason of 
-discharge. 
+
 
 # Exploratory data analysis
 
@@ -70,7 +65,7 @@ discharge.
 In the dataset missing data is coded for '-9'. In this research those values
 are replaced with NA.
 
-```{r}
+```{r replace_mv, message=FALSE, warning=FALSE}
 # replacing missing data with NA's 
 data[data == -9] <- NA
 
@@ -78,22 +73,19 @@ data[data == -9] <- NA
 
 ## Variation and distribution
 
-
-To get an idea of what the data includes a couple histograms are made (see results).
-The histograms display the amount of patients, in age groups, when they first used 
+To get an idea of what the data includes an exploratory data analysis is done.
+The barplots display the amount of patients, in age groups, when they first used 
 and their frequency of use. 
-Also the amount of patients and their substance use are displayed in a histogram. 
+Also the amount of patients and their substance use and route of administration 
+are displayed in a barplot.
 A boxplot is used to show the length of stay in treatment versus the type of substance use. 
 
 
 ## Results
 
-In figure 1 is the age of patients shown. The age of patients is divided in
-groups of around 4 years. Most patients are between 25 and 39 years old. 
-The age of patients seems like a normal distrubution.
+With ggplot is a histogram made to depict the distribution of the age of patients in groups. 
 
-
-```{r message=FALSE, warning=FALSE, fig.cap="Figure 1: Histogram age of patients in groups", fig.dim = c(6, 4)}
+```{r hist, message=FALSE, warning=FALSE, fig.cap="Figure 1: Histogram age of patients in groups", fig.dim = c(6, 4)}
 x <- 1:12
 label <- c("12-14","15–17", "18–20", "21-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-64", ">65")
 ggplot(data = data, aes(x = AGE)) + 
@@ -110,9 +102,9 @@ ggplot(data = data, aes(x = AGE)) +
 
 
 ```
-
-
-Figure 2 .... 
+The data is for used instances converted to strings instead of numeric values,
+this is done for convenient plotting purposes. 
+Multiple stacked barplots are made to show the distribution of values in groups.
 
 ```{r frstuse, message=FALSE, warning=FALSE}
 data$frstuse <- replace(data$FRSTUSE1, data$FRSTUSE1 == 1, "<11") 
@@ -197,7 +189,7 @@ p2 <- ggplot(total1, aes(fill=freq_use, y=freq, x=frequency)) +
 
 ```
 
-```{r sub}
+```{r sub, message=FALSE, warning=FALSE}
 data$sub <- replace(data$SUB1, data$SUB1 == 1, "None") 
 data$sub <- replace(data$sub, data$sub == 2, "Alcohol") 
 data$sub <- replace(data$sub, data$sub == 3, "Cocaine/crack")
@@ -276,7 +268,8 @@ p3 <- ggplot(total2, aes(fill=sub, y=freq, x=substance)) +
             geom_bar(position="stack", stat="identity")+
             xlab("Substance used") +
             ylab("Patients") +
-            theme(axis.text.x = element_text(angle =90))
+            theme(axis.text.x = element_text(angle =90)) + 
+            ggtitle("Distribution of substance use of patients")
 
 ```
 
@@ -322,14 +315,17 @@ p4 <- ggplot(total3, aes(fill=freq_route, y=freq, x=route)) +
 ```
 
 
-```{r , fig.cap="Figure 2: Stacked barplots of use characteristics of patients"}
-grid.arrange(p1, p2, p3, p4, top=textGrob("Histograms of 4 Variables"), ncol = 2)
+```{r barplots_figure2, message=FALSE, warning=FALSE, fig.cap="Figure 2: Stacked barplots of use characteristics of patients", fig.dim=c(6,20)}
+grid.arrange(p1, p2, p4, top=textGrob("Distribution of use characteristics of patients"), ncol = 1)
 
 ```
 
-Figure 3:
+```{r barplots_figure3, fig.cap="Figure 3: Stacked barplot of substance use of patients", fig.dim = c(8,4)}
+p3 
+```
 
-```{r fig.cap="Figure 3: Boxplot length of stay in treatment in days by the substance use type of patients",  fig.dim = c(6, 4)}
+
+```{r boxplot_figure4, fig.cap="Figure 4: Boxplot length of stay in treatment in days by the substance use type of patients",  fig.dim = c(6, 4)}
 data$type_drug <- replace(data$ALCDRUG, data$ALCDRUG == 1, "Alcohol only") 
 data$type_drug <- replace(data$type_drug, data$type_drug == 2, "Other drugs only") 
 data$type_drug <- replace(data$type_drug, data$type_drug == 3, "Alcohol and other drugs")
@@ -345,12 +341,27 @@ ggplot(data = data, aes(factor(x=type_drug, level = c("None", "Alcohol only", "O
   
 ```
 
+```{r}
+# Length Of Stay data converted
+data$los <- as.character(data$LOS)
+data$los <- replace(data$los, data$los == 31, "31-45") 
+data$los <- replace(data$los, data$los == 32, "46-60") 
+data$los <- replace(data$los, data$los == 33, "61-90") 
+data$los <- replace(data$los, data$los == 34, "91-120") 
+data$los <- replace(data$los, data$los == 35, "121-180") 
+data$los <- replace(data$los, data$los == 36, "181-365") 
+data$los <- replace(data$los, data$los == 37, ">365") 
+```
+
+
 
 # Cleaning dataset
 
 Because the dataset is very large and most of the data is not included in this project.
 Only the characteristics of the use of patients is necessary, which include: Type of use (alcohol, drugs or both), the substance of use, the frequency of use and the age of first use. The length of stay is also necessary in this project. 
-Because the dataset is this large, the patients which have information that is not available is removed from the dataset. This includes around 200.000 patients, the dataset still includes more than 1.5 million patients. 
+Because the dataset is this large, the patients which have information that is not available is removed from the dataset. This includes around 200.000 patients, the dataset still includes more than 1.5 million patients. Removing the missing values makes it also easier for the machine learning algorithm to classify instances. 
+Thereafter a sample of the dataset is taken. Both the dataset and the sample are written to csv files, to 
+be uploaded to Weka. 
 
 ```{r}
 pat <- "type_drug|sub$|freq$|frstuse$|los"
@@ -361,20 +372,19 @@ dataset <- data[, grep(pattern=pat, colnames(data))]
 # remove rows with NA's
 dataset <- na.omit(dataset)
 
-
-dataset_weka <- sample_n(dataset, 1520681/3) 
-
-```
-
-```{r}
-write.csv(dataset_weka, file = "dataset_thema09.csv")
+dataset_sample <- sample_n(dataset, 1520681/10) 
 
 ```
 
-After that the cleaned dataset is written to a csv file. 
+
+
 ```{r}
-# Write dataset to csv file
+# Write datasets to csv files
 write.csv(dataset, file = "dataset_thema09.csv")
+
+write.csv(dataset_sample, file = "dataset_sample_thema09.csv")
+
+
 ```
 
 
@@ -382,12 +392,15 @@ write.csv(dataset, file = "dataset_thema09.csv")
 
 ## Weka Explorer 
 
-The csv file is uploaded in the Weka Explorer. 
+The csv files are uploaded in the Weka Explorer. To validate the sample, both datasets were
+investigated with the ZeroR machine learning algorithm. In the table beneath, can be seen
+that the percentage of instances (in)correctly classified are not significant different.
+Taking the sample as the dataset to investigate further.
 The performance of standard machine learning algorithms was investigated. The classifier and
 attribute investigated were noted as well as the percentages (in)correctly classified instances. 
 
 ```{r}
-weka <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/weka.csv", 
+weka <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/weka.csv", 
                   sep = ',',
                   header = T)
 
@@ -403,56 +416,149 @@ Results of each machine learning algorithm is separately saved in the Weka_resul
 ```{r}
 pat <- "Key_Run|Key_Fold|Percent_correct|Percent_incorrect|True_positive_rate|False_positive_rate|True_negative_rate|False_negative_rate|^Elapsed"
 
+# Read table from csv file
 zeror <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/ZeroR.csv", 
                         sep = ',',
                         header = T)
 
+# Get relevant information
 zeror <- zeror[, grep(pattern=pat, colnames(zeror))]
 
-knitr::kable(zeror)
+knitr::kable(head(zeror))
+
 
 ```
 
 ```{r}
+# Read table from csv file
 oner <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/OneR.csv", 
                         sep = ',',
                         header = T)
 
+# Get relevant information
 oner <- oner[, grep(pattern=pat, colnames(oner))]
 
-knitr::kable(oner)
+knitr::kable(head(oner))
+
+
+
 
 ```
 
 
 ```{r}
+# Read table from csv file
 naivebayes <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/naivebayes.csv", 
                         sep = ',',
                         header = T)
 
+# Get relevant information
 naivebayes <- naivebayes[, grep(pattern=pat, colnames(naivebayes))]
 
-knitr::kable(naivebayes)
+knitr::kable(head(naivebayes))
+
+
 
 ```
 
+```{r}
+# Read table from csv file
+Ikb <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/Ikb.csv", 
+                        sep = ',',
+                        header = T)
 
+# Get relevant information
+Ikb <- Ikb[, grep(pattern=pat, colnames(Ikb))]
+
+knitr::kable(head(Ikb))
+
+```
 
 
 ```{r}
+# Read table from csv file
+SL <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/SimpleLogistics.csv", 
+                        sep = ',',
+                        header = T)
+
+# Get relevant information
+SL <- SL[, grep(pattern=pat, colnames(SL))]
+
+knitr::kable(head(SL))
 
 ```
-
 
 ```{r}
+# Read table from csv file
+smo <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/SMO.csv", 
+                        sep = ',',
+                        header = T)
+
+# Get relevant information
+smo <- smo[, grep(pattern=pat, colnames(smo))]
+
+knitr::kable(head(smo))
+
 
 ```
 
 
 
+## Optimize algorithms
+
+For further optimalization Naive Bayes and SimpleLogistics algorithms are choosen. 
+First Naive Bayes is investigated.
+Changing to the `Train/Test Percentage Split (data randomized)` test option:
+With 10 runs and the split percentage ranging from 40 to 90%, the algorithm
+classifies between the 70.66% (40% split percentage) and 70.74% (66% split percentage).
+This is not better than the original Naive Bayes algorithm. 
+Thereafter the k-fold cross-validation was tested. But also here, no optimalization 
+by changing the number of folds higher or lower.
+
+Moving on to the SimpleLogistics algorithm:
+Changing again the `Train/Test Percentage Split (data randomized)` test option:
+With 10 runs and the split percentage ranging from 40 to 90% the algorithm, the
+algorithm classified every time 72% of the instances correctly. This is not worse, 
+but also no optimalization. 
+Optimalization was achieved with increasing the number of folds with the k-fold cross-validation
+test-option. With 15-folds, 75% of the instances were correctly but the time performing
+the algorithm doubled, so in general would the increase not be sufficient. 
+ 
+
+```{r}
+meta <- c("Bagging", "Stacking", "Boosting") #rows
+training_correct <- c("43.3%", "13.6%", "13.6%") 
+training_incorrect <- c("56.7%", "86.4%", "86.4%") 
+
+fold_correct <- c("9.6%", "13.6%", "13.6%")
+fold_incorrect <- c("90.3%","86.4%", "86.4%")
+
+training <- data.frame(training_correct, training_incorrect)
+row.names(training) <- meta
+colnames(training) <- c("Correctly classified", "Incorrectly classified")
+training
 
 
+fold <- data.frame(fold_correct, fold_incorrect)
+row.names(fold) <- meta
+colnames(fold) <- c("Correctly classified", "Incorrectly classified")
+fold
+```
 
+
+## Visualizing
+
+Visualizing the results in a ROC curve, figure 5, can be done in the Explorer.
+By running the Naive Bayes algorithm with 10-fold cross-validation, being the best model,
+the ROC curve can be visualized. 
+The area under the curve is 0.6664
+
+Creating a learning curve can be done in the advanced mode of the Experimenter. For destination choose `CSVResultListener` and for `Result generator`, `RandomSplitResultProducer` with again 90.0 as `trainPercent`.The `splitEvaluator` is set to `CostSensitiveClassifier` which is set to the Naive Bayes classifier. After taking the data and error rate out of Weka a learning curve is made. 
+As you can see in figure 6 the bottom plot the algorithm learns most when 90% of the data is used. The algorithm starts to learn slow when less than 20% is used.
+
+<!-- #!["figure 5: ROC curve"](~/Bio-informatica/BFV3/Semester1/Themaopdracht09/ROC.jpg)
+
+#!["figure 6: Learning curve"](~/Bio-informatica/BFV3/Semester1/Themaopdracht09/LC.jpg) --> 
 
 
 
