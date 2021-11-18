@@ -2,17 +2,28 @@
 title: "Report"
 author: "H.S. Reefman"
 date: "2-11-2021"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+
+library(tidyverse)
+library(ggplot2)
+library(tidyr)
+library(gridExtra)
+library(plyr); library(dplyr)
+library(grid)
+library(patchwork)
 ```
 
 # Introduction
 
-```{r get dataset}
-load("~/Documents/Themaopdracht09/tedsd_puf_2019.RData")
+```{r dataset}
+load("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/tedsd_puf_2019.RData")
 
 p <- "CASEID|AGE|EDUC|^EMPLOY|ALCDRUG|^SUB|^FREQ[1|2|3]|^ROUTE|^FRSTUSE|LOS|NOPRIOR|PSYPROB|DSMCRIT|REASON"
 
@@ -38,7 +49,6 @@ Other information is about substance characteristics, for example; substance use
 substance use at admission and discharge and route of administration.
 The information about treatment episodes are also covered, this includes length
 of stay in treatment.
-
 
 # Materials and Methods
 
@@ -68,7 +78,7 @@ https://github.com/Susanreefman/Themaopdracht09
 
 At last a command-line application (wrapper) was made in the Java programming language. 
 Code for the wrapper can be found in a repository on Github.com:
-https://
+https://github.com/Susanreefman/JavaWrapperThema09
 
 
 
@@ -76,22 +86,21 @@ https://
 
 ## EDA
 In figure 2 multiple stacked barplots are shown. 
-Top-left depicts the age of first use of the patients. The age is divided in multiple groups, in which the first groups is 11 years of younger and the last group is 30 years of older. Every bar is divided into 3 classes. The pink class is the age of first using the primary substance of the patients. The blue class is the age of first using the secondary substance, and the green class the tertiary substance. The results seem normally distributed with a large amount of patients who started between 15 and 17 years old with using their primary, secondary or tertiary substance.
+The top barplot depicts the age of first use of the patients. The age is divided in multiple groups, in which the first groups is 11 years of younger and the last group is 30 years of older. Every bar is divided into 3 classes. The pink class is the age of first using the primary substance of the patients. The blue class is the age of first using the secondary substance, and the green class the tertiary substance. The results seem normally distributed with a large amount of patients who started between 15 and 17 years old with using their primary, secondary or tertiary substance.
 
-Top-right shows the frequency of use of patients. Unlike the groups the frequency of use in which the data is divided, the 'NA' group is extremely large. Out of proportion is are the missing values of the frequency of the tertiary substance used. This could be because patients do not have a tertiary substance that is used. The frequency for the secondary and tertiary substance is lower, most patients just use one substance. The most patients use their primary substance daily. 
+The second barplot shows the frequency of use of patients. Unlike the groups the frequency of use in which the data is divided, the 'NA' group is extremely large. Out of proportion is are the missing values of the frequency of the tertiary substance used. This could be because patients do not have a tertiary substance that is used. The frequency for the secondary and tertiary substance is lower, most patients just use one substance. The most patients use their primary substance daily. 
 
-Bottom-left shows the number of patients and their substance use. 
-Not surprisingly is the blue (tertiary substance) very high for the None of substance of use. Not all patients have multiple substances they are using. However, 
-there are a few patients that filled in that the have none as primary substance of use (pink). 
-Alcohol, Heroin and Methamphetamine are the most primary substances of patients. Cocaine and Marijuana or Hashish are mostly the secondary substance used. 
-
-Bottom-right depicts the usual route of administration of patients. 
+The third barplot depicts the usual route of administration of patients. 
 Most patients use the oral route of administration for their primary substance use.
 Most patients that have a secondary substance use, use the smoking route of administration
 of that substance. Again large amount of patients have missing information for the route of the secondary and tertiary substance, these are the patients that said they did not have a secondary or tertiary substance they use. 
 
+Figure 3 shows the number of patients and their substance use. 
+Not surprisingly is the blue (tertiary substance) very high for the None of substance of use. Not all patients have multiple substances they are using. However, 
+there are a few patients that filled in that the have none as primary substance of use (pink). 
+Alcohol, Heroin and Methamphetamine are the most primary substances of patients. Cocaine and Marijuana or Hashish are mostly the secondary substance used. 
 
-The boxplot in figure 3 shows the distribution of patients length of stay in treatment in days
+The boxplot in figure 4 shows the distribution of patients length of stay in treatment in days
 versus the substance use type which they get treated for. The mean of length of stay 
 when they indicated "none" as substance use type is 9 days. For alcohol and other drugs
 the treatment is much longer. For alcohol as substance use type the average length of stay is 22 days.
@@ -103,27 +112,110 @@ of stay is 28 days. The length of stay has a large difference in all substance u
 
 Because the dataset is very large and most of the data is not included in this project.
 Only the characteristics of the use of patients is necessary, which include: Type of use (alcohol, drugs or both), the substance of use, the frequency of use, the route of inhalation and the age of first use. The length of stay is also necessary in this project. 
-Because the dataset is this large, the patients which have information that is not available is removed from the dataset. This includes around 200.000 patients, the dataset still includes more than 1.5 million patients. 
+Because the dataset is this large, the patients which have information that is not available is removed from the dataset. This includes around 200.000 patients, the dataset still includes more than 1.5 million patients. Removing the missing values makes it also easier for the machine learning algorithm to classify instances. 
+Thereafter a sample of the dataset is taken. Both the dataset and the sample are written to csv files, to 
+be uploaded to Weka. 
 
 ## WEKA
 
-The cleaned dataset is uploaded into the Weka Explorer.
+The first action that was taken in Weka is validating the sample, both datasets were
+investigated with the ZeroR machine learning algorithm. In the table beneath, can be seen
+that the percentage of instances (in)correctly classified are not significant different.
+Taking the sample as the dataset to investigate further.
+The performance of standard machine learning algorithms was investigated. The classifier and
+attribute investigated were noted as well as the percentages (in)correctly classified instances. 
+
+```{r fig.cap="table 1:"}
+attributes <- c("type drug", "sub", "freq", "frstuse", "los")
+data_zeroR_correct <- c("%53.9", "33.7%", "45.5%", "24.4%", "13.6%")
+data_zeroR_incorrect <- c("46.1%", "67.3%", "54.5%", "75.6%", "86.4%")
+sample_zeroR_correct <- c("%53.8", "33.6%", "44.5%", "24.5%", "13.8%")
+sample_zeroR_incorrect <- c("46.2%", "67.4%", "56.5%", "75.5%", "86.2%")
+
+knitr::kable(data.frame(attributes, data_zeroR_correct, data_zeroR_incorrect, sample_zeroR_correct, sample_zeroR_incorrect))
+
+```
+
+
+```{r fig.cap="table 2: "}
+weka <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/weka.csv", 
+                  sep = ',',
+                  header = T)
+
+knitr::kable(weka)
+```
 
 
 ## Machine learning
 
+```{r}
+c <- c("ZeroR", "OneR", "Naive Bayes", "Ikb", "SimpleLogistics", "SMO")
+d <- c("13.6%", "10.1%", "85.7%", "17.1%", "73.0%", "11.5%")
+e <- c("86.4%", "89.9%", "14.3%", "82.9%", "27.0%", "88.5%")
+
+frame <- data.frame(d,e)
+row.names(frame) <- c
+colnames(frame) <- c("Correctly classified", "Incorrectly classified")
+
+frame
+```
+
+Waarom Naive Bayes en SL:
+Meeste goede, duurt niet lang
+
+Optimalizatie van NB en SL:
+  algorithm
+  
+  meta learners
+
+
+For further optimalization Naive Bayes and SimpleLogistics algorithms are choosen. 
+First Naive Bayes is investigated.
+Changing to the `Train/Test Percentage Split (data randomized)` test option:
+With 10 runs and the split percentage ranging from 40 to 90%, the algorithm
+classifies between the 70.66% (40% split percentage) and 70.74% (66% split percentage).
+This is not better than the original Naive Bayes algorithm. 
+Thereafter the k-fold cross-validation was tested. But also here, no optimalization 
+by changing the number of folds higher or lower.
+
+Moving on to the SimpleLogistics algorithm:
+Changing again the `Train/Test Percentage Split (data randomized)` test option:
+With 10 runs and the split percentage ranging from 40 to 90% the algorithm, the
+algorithm classified every time 72% of the instances correctly. This is not worse, 
+but also no optimalization. 
+Optimalization was achieved with increasing the number of folds with the k-fold cross-validation
+test-option. With 15-folds, 75% of the instances were correctly but the time performing
+the algorithm doubled, so in general would the increase not be sufficient.
+
+
+naive bayes
+Train/Test Percentage Split (data randomized) training% 40.0, number of runs = 10 --> 70.66
+Train/Test Percentage Split (data randomized) 66.0, number of runs = 10 --> 70.74
+Train/Test Percentage Split (data randomized) 80.0, number of runs = 10 --> 70.71
+Train/Test Percentage Split (data randomized) 90.0, number of runs = 10 --> 70.68
+Niet beter dus laten bij cross-validation
+5-fold crossvalidation -> 78.70
+
+sl
+Train/Test Percentage Split (data randomized) training% 40.0, number of runs = 10 --> 72.41
+Train/Test Percentage Split (data randomized) 66.0, number of runs = 10 --> 72.41
+Train/Test Percentage Split (data randomized) 80.0, number of runs = 10 --> 72.40
+Train/Test Percentage Split (data randomized) 90.0, number of runs = 10 --> 72.40
 
 
 # Conclusion and Discussion
 
-Overall, as can be seen in the figures (see Results), the data is widely spread.
+Dataset bestond uit heel veel waarden dus miss andere column meer invloed op length of stay.
+
+
+<!-- Overall, as can be seen in the figures (see Results), the data is widely spread.
 The age of patients and the age of first use of patients seem normally distributed. 
 The attributes of variables can be discussed. In some cases the attributes are vague
 and can be wide interpreted. This is in the case of frequency of use, there 
 are three groups in which the data is divided: No use in the past month, Some use 
 and Daily use. As the first group is very clear, the second group is to vague. 
 What is meant by some use? Also the third group, daily use, can be up for discussion;
-how much is the substance used daily.
+how much is the substance used daily. --> 
 
 
 ## Project proposal for minor
