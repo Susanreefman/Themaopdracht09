@@ -1,8 +1,11 @@
 ---
-title: "Report"
+title: Predicting the characteristics of patients in treatment facilities using Machine
+  Learning algorithms
 author: "H.S. Reefman"
-date: "2-11-2021"
+date: "19/11/2021"
 output:
+  word_document: default
+  pdf_document: default
   html_document:
     df_print: paged
 ---
@@ -22,7 +25,7 @@ library(patchwork)
 
 # Introduction
 
-```{r dataset}
+```{r dataset, echo=FALSE, message=FALSE, warning=FALSE}
 load("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/tedsd_puf_2019.RData")
 
 p <- "CASEID|AGE|EDUC|^EMPLOY|ALCDRUG|^SUB|^FREQ[1|2|3]|^ROUTE|^FRSTUSE|LOS|NOPRIOR|PSYPROB|DSMCRIT|REASON"
@@ -49,6 +52,10 @@ Other information is about substance characteristics, for example; substance use
 substance use at admission and discharge and route of administration.
 The information about treatment episodes are also covered, this includes length
 of stay in treatment.
+In this research multiple Machine Learning algorithms are explored, with using the best
+performing algorithm to make the model. The data is used to train and test the algorithms.
+
+\newpage
 
 # Materials and Methods
 
@@ -80,11 +87,34 @@ At last a command-line application (wrapper) was made in the Java programming la
 Code for the wrapper can be found in a repository on Github.com:
 https://github.com/Susanreefman/JavaWrapperThema09
 
-
+\newpage
 
 # Results
 
 ## EDA
+
+The distribution of the patients is first explored. In figure 1 depicts the histogram the age
+of patients in groups. The yougest group being 12 to 14 years and the oldest group over 65 years.
+The age seems normally distributed across the patients.
+
+```{r hist, message=FALSE, warning=FALSE, echo=FALSE, fig.cap="Figure 1: Histogram age of patients in groups", fig.dim = c(6, 4)}
+x <- 1:12
+label <- c("12-14","15–17", "18–20", "21-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-64", ">65")
+ggplot(data = data, aes(x = AGE)) + 
+  geom_histogram(bins = 12,
+                 xlim = c(0,12),
+                 ylim = c(0,1000),
+                 fill = I("blue"),
+                 col = I("blue"),
+                 alpha = 0.5) +
+  ggtitle("Distribution of age of patients") +
+  xlab("Age (years)") +
+  ylab("Frequency") +
+  scale_x_continuous(labels=label,breaks=x)
+
+
+```
+
 In figure 2 multiple stacked barplots are shown. 
 The top barplot depicts the age of first use of the patients. The age is divided in multiple groups, in which the first groups is 11 years of younger and the last group is 30 years of older. Every bar is divided into 3 classes. The pink class is the age of first using the primary substance of the patients. The blue class is the age of first using the secondary substance, and the green class the tertiary substance. The results seem normally distributed with a large amount of patients who started between 15 and 17 years old with using their primary, secondary or tertiary substance.
 
@@ -95,10 +125,15 @@ Most patients use the oral route of administration for their primary substance u
 Most patients that have a secondary substance use, use the smoking route of administration
 of that substance. Again large amount of patients have missing information for the route of the secondary and tertiary substance, these are the patients that said they did not have a secondary or tertiary substance they use. 
 
+\newpage
+
+\newpage
+
 Figure 3 shows the number of patients and their substance use. 
 Not surprisingly is the blue (tertiary substance) very high for the None of substance of use. Not all patients have multiple substances they are using. However, 
 there are a few patients that filled in that the have none as primary substance of use (pink). 
 Alcohol, Heroin and Methamphetamine are the most primary substances of patients. Cocaine and Marijuana or Hashish are mostly the secondary substance used. 
+
 
 The boxplot in figure 4 shows the distribution of patients length of stay in treatment in days
 versus the substance use type which they get treated for. The mean of length of stay 
@@ -107,6 +142,7 @@ the treatment is much longer. For alcohol as substance use type the average leng
 For the patients with a substance use type of only drugs or alcohol and other drugs the average length
 of stay is 28 days. The length of stay has a large difference in all substance use type groups. 
 
+\newpage
 
 ## Cleaning dataset
 
@@ -116,39 +152,57 @@ Because the dataset is this large, the patients which have information that is n
 Thereafter a sample of the dataset is taken. Both the dataset and the sample are written to csv files, to 
 be uploaded to Weka. 
 
-## WEKA
+## Weka
 
 The first action that was taken in Weka is validating the sample, both datasets were
-investigated with the ZeroR machine learning algorithm. In the table beneath, can be seen
+investigated with the ZeroR machine learning algorithm. In the Table 1, can be seen
 that the percentage of instances (in)correctly classified are not significant different.
-Taking the sample as the dataset to investigate further.
-The performance of standard machine learning algorithms was investigated. The classifier and
-attribute investigated were noted as well as the percentages (in)correctly classified instances. 
+Taking the sample as the dataset to investigate further, the performance of standard machine learning algorithms was investigated. The classifier and attribute investigated were noted 
+as well as the percentages (in)correctly classified instances (Table 2).
 
-```{r fig.cap="table 1:"}
+```{r wekaTable1, echo=FALSE, message=FALSE, warning=FALSE}
 attributes <- c("type drug", "sub", "freq", "frstuse", "los")
-data_zeroR_correct <- c("%53.9", "33.7%", "45.5%", "24.4%", "13.6%")
+data_zeroR_correct <- c("53.9%", "33.7%", "45.5%", "24.4%", "13.6%")
 data_zeroR_incorrect <- c("46.1%", "67.3%", "54.5%", "75.6%", "86.4%")
-sample_zeroR_correct <- c("%53.8", "33.6%", "44.5%", "24.5%", "13.8%")
+sample_zeroR_correct <- c("53.8%", "33.6%", "44.5%", "24.5%", "13.8%")
 sample_zeroR_incorrect <- c("46.2%", "67.4%", "56.5%", "75.5%", "86.2%")
 
-knitr::kable(data.frame(attributes, data_zeroR_correct, data_zeroR_incorrect, sample_zeroR_correct, sample_zeroR_incorrect))
+wekaTable <- data.frame(attributes, data_zeroR_correct, data_zeroR_incorrect, sample_zeroR_correct, sample_zeroR_incorrect)
+colnames(wekaTable) <- c("Attributes", "Dataset correct", "Dataset incorrect", "Sample correct", "Sample incorrect")
+
+knitr::kable(wekaTable, caption = "Table 1: Validation sample of dataset with ZeroR Machine Learning algorithm")
 
 ```
 
 
-```{r fig.cap="table 2: "}
+```{r wekaTable2, echo=FALSE, message=FALSE, warning=FALSE}
 weka <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/weka.csv", 
                   sep = ',',
                   header = T)
+colnames(weka) <- c("Classifier", "Attribute", "Correct", "Incorrect")
 
-knitr::kable(weka)
+knitr::kable(weka, caption = "Table 2: Results standard Machine Learning algorithms")
 ```
+
+In table 2 are the standard Machine Learning algorithms and their results.
+The attribute `type_drug` is performing best of the attributes, while `los` is
+performing lowest. The Nearest-Neighbor algorithm performs almost for all attributes
+100%, but this algorithm takes hours to compute a model. This was also the case
+for the J48 tree algorithm. 
 
 
 ## Machine learning
 
-```{r}
+After using the training set, 10-fold cross-validation was used as test option. 
+In table 3 are the results of the investigation. The time to execute the 
+Machine Learning algorithms diverge from eachother. The ZeroR, OneR, Naive Bayes
+and Simple Logistics algorithms had a time span from 1 second to 10 minutes to 
+train and to test the model. The Ikb and SMO algorithms took hours to compute
+results. Because Naive Bayes and SimpleLogistics have the highest percentage 
+correclty classified instances  and are rather fast in testing and training the 
+model, these are taken into further research. 
+
+```{r MLTables, echo=FALSE, message=FALSE, warning=FALSE}
 c <- c("ZeroR", "OneR", "Naive Bayes", "Ikb", "SimpleLogistics", "SMO")
 d <- c("13.6%", "10.1%", "85.7%", "17.1%", "73.0%", "11.5%")
 e <- c("86.4%", "89.9%", "14.3%", "82.9%", "27.0%", "88.5%")
@@ -157,65 +211,96 @@ frame <- data.frame(d,e)
 row.names(frame) <- c
 colnames(frame) <- c("Correctly classified", "Incorrectly classified")
 
-frame
+knitr::kable(frame, caption = "Table 3: Results standard Machine Learning algorithms with 10-fold cross-validation as test option")
 ```
 
-Waarom Naive Bayes en SL:
-Meeste goede, duurt niet lang
+### Optimization
 
-Optimalizatie van NB en SL:
-  algorithm
-  
-  meta learners
+Next, optimization of the Naive Bayes and Simple Logistics algorithms was
+tried to achieve. Because the 10-fold cross-validation did not improve the
+algorithms and took more time to process, percentage split was used as
+test option. Both algorithms were run with 4 different percentage splits: 40%, 
+66%, 80% and 90%. The Naive Bayes algorithm classified between 70.66% (40% split percentage)
+and 70.74% (66% split percentage). This is significant lower than the original (85.7%) 
+model with using a training set.
+Also for the Simple Logistics algorithm was no optimization reached. With the different
+percentage splits, the algorithm correctly classified 72% of the instances each time.
+This is no decline but certainly no optimization. 
+
+At last, some meta learners, stacking, bagging and boosting, were examined on the
+Naive Bayes algorithm. 
+For the model a training set was used as test model, the results can be seen in table 4.
+Only Bagging (43%) shows a reasonably amount of correctly classified instances. 
+Thereafter the test option was again switched to 10-fold cross-validation, but none
+of the meta learners improved the model (table 5). 
+This could be because the meta learners take the results of other algorithms and
+use those to train the model. In this case, previous runs of algorithms scored low
+on the correctly classified instances. Taking these algorithms as base learner, the 
+model can not learn to correctly classify instances. 
+
+```{r tableMetaLeaners, echo=FALSE, message=FALSE, warning=FALSE}
+meta <- c("Bagging", "Stacking", "Boosting") #rows
+training_correct <- c("43.3%", "13.6%", "13.6%") 
+training_incorrect <- c("56.7%", "86.4%", "86.4%") 
+
+training <- data.frame(training_correct, training_incorrect)
+row.names(training) <- meta
+colnames(training) <- c("Correctly classified", "Incorrectly classified")
+knitr::kable(training, caption = "Table 4: Meta learners with using training set as test option" )
+
+```
+
+```{r tableMetaLeaners2, echo=FALSE, message=FALSE, warning=FALSE}
+fold_correct <- c("9.6%", "13.6%", "13.6%")
+fold_incorrect <- c("90.3%","86.4%", "86.4%")
+
+fold <- data.frame(fold_correct, fold_incorrect)
+row.names(fold) <- meta
+colnames(fold) <- c("Correctly classified", "Incorrectly classified")
+knitr::kable(fold, caption = "Table 5: Meta learners with using 10-fold cross-validation as test option")
+```
+
+## Curves
+
+Visualizing the results in a ROC curve, figure 5, by running the Naive Bayes algorithm with 10-fold cross-validation, shows a area under the curve of 0.6664. Which indicates that the
+performance of the model at distinguishing positive and negative classes is little more than
+half of the time. 
+After taking the data and error rate out of the Weka application a learning curve is made. 
+As you can see in figure 6 the algorithm learns most when 90% of the sample of the data is used. The algorithm starts to learn slow when less than 20% is used.
+
+<!-- #!["figure 5: ROC curve"](~/Bio-informatica/BFV3/Semester1/Themaopdracht09/ROC.jpg)
+
+#!["figure 6: Learning curve"](~/Bio-informatica/BFV3/Semester1/Themaopdracht09/LC.jpg) --> 
 
 
-For further optimalization Naive Bayes and SimpleLogistics algorithms are choosen. 
-First Naive Bayes is investigated.
-Changing to the `Train/Test Percentage Split (data randomized)` test option:
-With 10 runs and the split percentage ranging from 40 to 90%, the algorithm
-classifies between the 70.66% (40% split percentage) and 70.74% (66% split percentage).
-This is not better than the original Naive Bayes algorithm. 
-Thereafter the k-fold cross-validation was tested. But also here, no optimalization 
-by changing the number of folds higher or lower.
 
-Moving on to the SimpleLogistics algorithm:
-Changing again the `Train/Test Percentage Split (data randomized)` test option:
-With 10 runs and the split percentage ranging from 40 to 90% the algorithm, the
-algorithm classified every time 72% of the instances correctly. This is not worse, 
-but also no optimalization. 
-Optimalization was achieved with increasing the number of folds with the k-fold cross-validation
-test-option. With 15-folds, 75% of the instances were correctly but the time performing
-the algorithm doubled, so in general would the increase not be sufficient.
-
-
-naive bayes
-Train/Test Percentage Split (data randomized) training% 40.0, number of runs = 10 --> 70.66
-Train/Test Percentage Split (data randomized) 66.0, number of runs = 10 --> 70.74
-Train/Test Percentage Split (data randomized) 80.0, number of runs = 10 --> 70.71
-Train/Test Percentage Split (data randomized) 90.0, number of runs = 10 --> 70.68
-Niet beter dus laten bij cross-validation
-5-fold crossvalidation -> 78.70
-
-sl
-Train/Test Percentage Split (data randomized) training% 40.0, number of runs = 10 --> 72.41
-Train/Test Percentage Split (data randomized) 66.0, number of runs = 10 --> 72.41
-Train/Test Percentage Split (data randomized) 80.0, number of runs = 10 --> 72.40
-Train/Test Percentage Split (data randomized) 90.0, number of runs = 10 --> 72.40
-
+\newpage
 
 # Conclusion and Discussion
 
-Dataset bestond uit heel veel waarden dus miss andere column meer invloed op length of stay.
-
-
-<!-- Overall, as can be seen in the figures (see Results), the data is widely spread.
-The age of patients and the age of first use of patients seem normally distributed. 
-The attributes of variables can be discussed. In some cases the attributes are vague
-and can be wide interpreted. This is in the case of frequency of use, there 
-are three groups in which the data is divided: No use in the past month, Some use 
-and Daily use. As the first group is very clear, the second group is to vague. 
-What is meant by some use? Also the third group, daily use, can be up for discussion;
-how much is the substance used daily. --> 
+After performing multiple Machine Learning algorithms with different test options, 
+the Naive Bayes and Simple Logistic algorithms were taken into further examination.
+Optimization of both these algorithms was not achieved, resulting in Naive Bayes with 10-fold 
+cross-validation as test option being the best algorithm to make a model on this
+dataset. With that model 85% of the instances could be correctly classified. 
+Assuming that the length of stay of patients in treatment can be predicted 
+based on the substance use, frequency of use and the age at first use. However, 
+there might be other attributes that could exceed the model. 
+In this research only the substance, substance use type, frequency of use and age
+at first use was taken in account, although the route of administration of the substance
+and for example employment status could have indications for the length of stay. 
+Another problem could be the amount of data in the dataset. Not all the algorithms
+could be thoroughly examined because of the time to compute the model. In following
+research the dataset could be split in more samples, differ in attributes and amount 
+of instances. The algorithms could be more intesive tested on those samples. 
 
 
 ## Project proposal for minor
+
+This research could be taken into a new project on larger scale. 
+The goal would be to examine this large dataset thorougly and 
+make one model of the entire dataset that can predict some attributes.
+This technology should be able to work as an Desktop app, which could
+be used by treatment facilities during the intake of patients.
+
+

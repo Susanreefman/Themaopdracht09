@@ -1,10 +1,11 @@
 ---
 title: "Logbook"
 author: "Susan Reefman"
-date: "05/10/2021"
+date: "19/11/2021"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -65,7 +66,7 @@ knitr::kable(codebook)
 In the dataset missing data is coded for '-9'. In this research those values
 are replaced with NA.
 
-```{r replace_mv, message=FALSE, warning=FALSE}
+```{r replaceMV, message=FALSE, warning=FALSE}
 # replacing missing data with NA's 
 data[data == -9] <- NA
 
@@ -315,17 +316,17 @@ p4 <- ggplot(total3, aes(fill=freq_route, y=freq, x=route)) +
 ```
 
 
-```{r barplots_figure2, message=FALSE, warning=FALSE, fig.cap="Figure 2: Stacked barplots of use characteristics of patients", fig.dim=c(6,20)}
+```{r barplotsFigure2, message=FALSE, warning=FALSE, fig.cap="Figure 2: Stacked barplots of use characteristics of patients", fig.dim=c(6,10)}
 grid.arrange(p1, p2, p4, top=textGrob("Distribution of use characteristics of patients"), ncol = 1)
 
 ```
 
-```{r barplots_figure3, fig.cap="Figure 3: Stacked barplot of substance use of patients", fig.dim = c(8,4)}
+```{r barplotsFigure3, fig.cap="Figure 3: Stacked barplot of substance use of patients", fig.dim = c(8,6)}
 p3 
 ```
 
 
-```{r boxplot_figure4, fig.cap="Figure 4: Boxplot length of stay in treatment in days by the substance use type of patients",  fig.dim = c(6, 4)}
+```{r boxplotFigure4, fig.cap="Figure 4: Boxplot length of stay in treatment in days by the substance use type of patients",  fig.dim = c(6, 4)}
 data$type_drug <- replace(data$ALCDRUG, data$ALCDRUG == 1, "Alcohol only") 
 data$type_drug <- replace(data$type_drug, data$type_drug == 2, "Other drugs only") 
 data$type_drug <- replace(data$type_drug, data$type_drug == 3, "Alcohol and other drugs")
@@ -341,7 +342,7 @@ ggplot(data = data, aes(factor(x=type_drug, level = c("None", "Alcohol only", "O
   
 ```
 
-```{r}
+```{r convertLOS}
 # Length Of Stay data converted
 data$los <- as.character(data$LOS)
 data$los <- replace(data$los, data$los == 31, "31-45") 
@@ -363,7 +364,7 @@ Because the dataset is this large, the patients which have information that is n
 Thereafter a sample of the dataset is taken. Both the dataset and the sample are written to csv files, to 
 be uploaded to Weka. 
 
-```{r}
+```{r cleanDataset}
 pat <- "type_drug|sub$|freq$|frstuse$|los"
 
 # get relevant data from dataset
@@ -378,10 +379,10 @@ dataset_sample <- sample_n(dataset, 1520681/10)
 
 
 
-```{r}
+```{r writeDatasets}
 # Write datasets to csv files
-write.csv(dataset, file = "dataset_thema09.csv")
 
+write.csv(dataset, file = "dataset_thema09.csv")
 write.csv(dataset_sample, file = "dataset_sample_thema09.csv")
 
 
@@ -399,7 +400,7 @@ Taking the sample as the dataset to investigate further.
 The performance of standard machine learning algorithms was investigated. The classifier and
 attribute investigated were noted as well as the percentages (in)correctly classified instances. 
 
-```{r}
+```{r tableWekaResults}
 weka <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/weka.csv", 
                   sep = ',',
                   header = T)
@@ -413,8 +414,9 @@ Using the Weka Experimenter machine learning algorithms with 10-fold cross-valid
 Results of each machine learning algorithm is separately saved in the Weka_results folder.
 
 
-```{r}
+```{r tableZeroR}
 pat <- "Key_Run|Key_Fold|Percent_correct|Percent_incorrect|True_positive_rate|False_positive_rate|True_negative_rate|False_negative_rate|^Elapsed"
+coln <- c("Key run", "Key fold", "% correct", "% incorrect", "TPR", "FPR", "TNR", "FNR", "Time training", "Time testing")
 
 # Read table from csv file
 zeror <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/ZeroR.csv", 
@@ -423,13 +425,14 @@ zeror <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_resul
 
 # Get relevant information
 zeror <- zeror[, grep(pattern=pat, colnames(zeror))]
+colnames(zeror) <- coln
 
-knitr::kable(head(zeror))
+knitr::kable(head(zeror), digits = 3)
 
 
 ```
 
-```{r}
+```{r tableOneR}
 # Read table from csv file
 oner <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/OneR.csv", 
                         sep = ',',
@@ -437,8 +440,9 @@ oner <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_result
 
 # Get relevant information
 oner <- oner[, grep(pattern=pat, colnames(oner))]
+colnames(oner) <- coln
 
-knitr::kable(head(oner))
+knitr::kable(head(oner),  digits = 3)
 
 
 
@@ -446,7 +450,7 @@ knitr::kable(head(oner))
 ```
 
 
-```{r}
+```{r tableNaiveBayes}
 # Read table from csv file
 naivebayes <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/naivebayes.csv", 
                         sep = ',',
@@ -454,14 +458,15 @@ naivebayes <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_
 
 # Get relevant information
 naivebayes <- naivebayes[, grep(pattern=pat, colnames(naivebayes))]
+colnames(naivebayes) <- coln
 
-knitr::kable(head(naivebayes))
+knitr::kable(head(naivebayes),  digits = 3)
 
 
 
 ```
 
-```{r}
+```{r tableIkb}
 # Read table from csv file
 Ikb <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/Ikb.csv", 
                         sep = ',',
@@ -469,13 +474,14 @@ Ikb <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results
 
 # Get relevant information
 Ikb <- Ikb[, grep(pattern=pat, colnames(Ikb))]
+colnames(Ikb) <- coln
 
-knitr::kable(head(Ikb))
+knitr::kable(head(Ikb),  digits = 3)
 
 ```
 
 
-```{r}
+```{r tableSL}
 # Read table from csv file
 SL <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/SimpleLogistics.csv", 
                         sep = ',',
@@ -483,12 +489,13 @@ SL <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/
 
 # Get relevant information
 SL <- SL[, grep(pattern=pat, colnames(SL))]
+colnames(SL) <- coln
 
-knitr::kable(head(SL))
+knitr::kable(head(SL),  digits = 3)
 
 ```
 
-```{r}
+```{r TableSMO}
 # Read table from csv file
 smo <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results/SMO.csv", 
                         sep = ',',
@@ -496,8 +503,10 @@ smo <- read.table("~/Bio-informatica/BFV3/Semester1/Themaopdracht09/Weka_results
 
 # Get relevant information
 smo <- smo[, grep(pattern=pat, colnames(smo))]
+colnames(smo) <- coln
 
-knitr::kable(head(smo))
+knitr::kable(head(smo),  digits = 3)
+
 
 
 ```
@@ -506,26 +515,26 @@ knitr::kable(head(smo))
 
 ## Optimize algorithms
 
-For further optimalization Naive Bayes and SimpleLogistics algorithms are choosen. 
+For further optimization Naive Bayes and Simple Logistics algorithms are chosen. 
 First Naive Bayes is investigated.
 Changing to the `Train/Test Percentage Split (data randomized)` test option:
 With 10 runs and the split percentage ranging from 40 to 90%, the algorithm
 classifies between the 70.66% (40% split percentage) and 70.74% (66% split percentage).
 This is not better than the original Naive Bayes algorithm. 
-Thereafter the k-fold cross-validation was tested. But also here, no optimalization 
+Thereafter the k-fold cross-validation was tested. But also here, no optimization 
 by changing the number of folds higher or lower.
 
-Moving on to the SimpleLogistics algorithm:
+Moving on to the Simple Logistics algorithm:
 Changing again the `Train/Test Percentage Split (data randomized)` test option:
 With 10 runs and the split percentage ranging from 40 to 90% the algorithm, the
 algorithm classified every time 72% of the instances correctly. This is not worse, 
-but also no optimalization. 
-Optimalization was achieved with increasing the number of folds with the k-fold cross-validation
+but also no optimization. 
+Optimization was achieved with increasing the number of folds with the k-fold cross-validation
 test-option. With 15-folds, 75% of the instances were correctly but the time performing
 the algorithm doubled, so in general would the increase not be sufficient. 
  
 
-```{r}
+```{r tableMetaLeaners}
 meta <- c("Bagging", "Stacking", "Boosting") #rows
 training_correct <- c("43.3%", "13.6%", "13.6%") 
 training_incorrect <- c("56.7%", "86.4%", "86.4%") 
@@ -536,13 +545,13 @@ fold_incorrect <- c("90.3%","86.4%", "86.4%")
 training <- data.frame(training_correct, training_incorrect)
 row.names(training) <- meta
 colnames(training) <- c("Correctly classified", "Incorrectly classified")
-training
+knitr::kable(training)
 
 
 fold <- data.frame(fold_correct, fold_incorrect)
 row.names(fold) <- meta
 colnames(fold) <- c("Correctly classified", "Incorrectly classified")
-fold
+knitr::kable(fold)
 ```
 
 
